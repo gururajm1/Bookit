@@ -9,6 +9,7 @@ import Header from './components/Header';
 import MovieList from './components/MovieList';
 import BookingPage from './components/BookingPage';
 import SeatSelection from './components/SeatSelection';
+import Payment from './components/Payment';
 import Login from './Auth/Login';
 import Signup from './Auth/Signup';
 
@@ -51,6 +52,11 @@ function App() {
             <Route path="/movie/:id/seats" element={
               <ProtectedRoute>
                 <SeatSelection />
+              </ProtectedRoute>
+            } />
+            <Route path="/payment" element={
+              <ProtectedRoute>
+                <Payment />
               </ProtectedRoute>
             } />
             

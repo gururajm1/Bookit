@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { ChevronLeft } from 'lucide-react';
@@ -30,17 +30,8 @@ const SeatSelection = () => {
   const selectedSeats = useSelector(selectSeats);
   
   const [totalAmount, setTotalAmount] = useState(0);
-
-  useEffect(() => {
-    if (!selectedMovie || !selectedCinema || !selectedShowTime) {
-      navigate('/dash');
-    }
-  }, [selectedMovie, selectedCinema, selectedShowTime, navigate]);
-
-  useEffect(() => {
-    // Calculate total amount whenever selected seats change
-    setTotalAmount(selectedSeats.length * (selectedCinema?.price || 0));
-  }, [selectedSeats, selectedCinema]);
+  const [ticketsAmount, setTicketsAmount] = useState(0);
+  const [convenienceFee, setConvenienceFee] = useState(0);
 
   // Define rows for the theater
   const rows = [
@@ -48,7 +39,7 @@ const SeatSelection = () => {
   ];
   
   // Generate all seats with unique numbers from 1 to 200
-  const generateAllSeats = (): Seat[] => {
+  const allSeats = useMemo(() => {
     const seats: Seat[] = [];
     let seatNumber = 1;
     
@@ -59,7 +50,7 @@ const SeatSelection = () => {
             id: seatNumber,
             row,
             number: i,
-            status: selectedCinema?.seatsBooked.includes(seatNumber) ? 'booked' : 'available'
+            status: selectedCinema?.seatsBooked?.includes(seatNumber) ? 'booked' : 'available'
           });
           seatNumber++;
         }
@@ -67,14 +58,56 @@ const SeatSelection = () => {
     }
     
     return seats;
-  };
-  
-  const allSeats = generateAllSeats();
+  }, [selectedCinema, rows]);
   
   // Get seats for a specific row
   const getSeatsForRow = (row: string): Seat[] => {
     return allSeats.filter(seat => seat.row === row);
   };
+
+  useEffect(() => {
+    if (!selectedMovie || !selectedCinema || !selectedShowTime) {
+      navigate('/dash');
+    }
+  }, [selectedMovie, selectedCinema, selectedShowTime, navigate]);
+
+  useEffect(() => {
+    // Calculate total amount whenever selected seats change
+    if (selectedSeats.length > 0 && selectedCinema) {
+      let ticketsTotal = 0;
+      const convenienceFeePerTicket = 5;
+      const totalConvenienceFee = selectedSeats.length * convenienceFeePerTicket;
+      
+      // Calculate ticket price based on row
+      selectedSeats.forEach(seatId => {
+        const seat = allSeats.find(s => s.id === seatId);
+        if (seat) {
+          const row = seat.row;
+          let seatPrice = selectedCinema.price;
+          
+          // Premium rows (I-N)
+          if (row >= 'I' && row <= 'N') {
+            seatPrice += 50;
+          } 
+          // Executive rows (D-H)
+          else if (row >= 'D' && row <= 'H') {
+            seatPrice += 20;
+          }
+          // Regular rows (A-C) - base price
+          
+          ticketsTotal += seatPrice;
+        }
+      });
+      
+      setTicketsAmount(ticketsTotal);
+      setConvenienceFee(totalConvenienceFee);
+      setTotalAmount(ticketsTotal + totalConvenienceFee);
+    } else {
+      setTicketsAmount(0);
+      setConvenienceFee(0);
+      setTotalAmount(0);
+    }
+  }, [selectedSeats, selectedCinema, allSeats]);
 
   const handleSeatClick = (seat: Seat) => {
     if (seat.status === 'booked') return;
@@ -84,6 +117,33 @@ const SeatSelection = () => {
     } else {
       dispatch(addSelectedSeat(seat.id));
     }
+  };
+
+  const handleProceedToPayment = () => {
+    if (selectedSeats.length === 0) return;
+    
+    // Prepare selected seats display format (e.g., "H12, C14")
+    const formattedSeats = selectedSeats.map(seatId => {
+      const seat = allSeats.find(s => s.id === seatId);
+      return seat ? `${seat.row}${seat.number}` : seatId;
+    }).join(', ');
+    
+    // Store payment data in sessionStorage
+    const paymentData = {
+      movieName: selectedMovie?.title,
+      theatreName: selectedCinema?.name,
+      theatreLocation: selectedCinema?.location,
+      showTime: selectedShowTime?.time,
+      showDate: selectedShowTime?.date || new Date().toLocaleDateString(),
+      totalSeats: selectedSeats.length,
+      selectedSeats: formattedSeats,
+      ticketsAmount: ticketsAmount,
+      convenienceFee: convenienceFee,
+      totalAmount: totalAmount
+    };
+    
+    sessionStorage.setItem('paymentData', JSON.stringify(paymentData));
+    navigate('/payment');
   };
 
   if (!selectedMovie || !selectedCinema || !selectedShowTime) {
@@ -138,20 +198,20 @@ const SeatSelection = () => {
             {/* Seat Categories */}
             <div className="mb-4 flex justify-center gap-8">
               <div className="text-center">
-                <span className="text-sm font-medium text-gray-600">PREMIUM - ₹{selectedCinema.price + 50}</span>
+                <span className="text-sm font-medium text-gray-600">PREMIUM (I-N) - ₹{selectedCinema.price + 50}</span>
               </div>
               <div className="text-center">
-                <span className="text-sm font-medium text-gray-600">EXECUTIVE - ₹{selectedCinema.price + 30}</span>
+                <span className="text-sm font-medium text-gray-600">EXECUTIVE (D-H) - ₹{selectedCinema.price + 20}</span>
               </div>
               <div className="text-center">
-                <span className="text-sm font-medium text-gray-600">REGULAR - ₹{selectedCinema.price}</span>
+                <span className="text-sm font-medium text-gray-600">REGULAR (A-C) - ₹{selectedCinema.price}</span>
               </div>
             </div>
 
             {/* Seats */}
             <div className="space-y-8 overflow-x-auto">
               <div className="grid gap-2 pb-4">
-                {/* Premium (First 3 rows) */}
+                {/* Regular (A-C) */}
                 <div className="mb-8">
                   {rows.slice(0, 3).map(row => (
                     <div key={row} className="flex items-center gap-2 mb-2">
@@ -184,7 +244,7 @@ const SeatSelection = () => {
                   ))}
                 </div>
 
-                {/* Executive (Next 5 rows) */}
+                {/* Executive (D-H) */}
                 <div className="mb-8">
                   {rows.slice(3, 8).map(row => (
                     <div key={row} className="flex items-center gap-2 mb-2">
@@ -217,7 +277,7 @@ const SeatSelection = () => {
                   ))}
                 </div>
 
-                {/* Regular (Remaining rows) */}
+                {/* Premium (I-N) */}
                 <div>
                   {rows.slice(8).map(row => (
                     <div key={row} className="flex items-center gap-2 mb-2">
@@ -297,15 +357,15 @@ const SeatSelection = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Tickets ({selectedSeats.length})</span>
-                    <span>₹{totalAmount}</span>
+                    <span>₹{ticketsAmount}</span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-500">
                     <span>Convenience Fee</span>
-                    <span>₹{selectedSeats.length > 0 ? 30 : 0}</span>
+                    <span>₹{convenienceFee}</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200">
                     <span>Total Amount</span>
-                    <span>₹{totalAmount + (selectedSeats.length > 0 ? 30 : 0)}</span>
+                    <span>₹{totalAmount}</span>
                   </div>
                 </div>
               </div>
@@ -317,7 +377,7 @@ const SeatSelection = () => {
                     : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                 }`}
                 disabled={selectedSeats.length === 0}
-                onClick={() => navigate('/payment')}
+                onClick={handleProceedToPayment}
               >
                 Proceed to Payment
               </button>
