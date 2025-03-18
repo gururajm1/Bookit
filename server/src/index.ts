@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
 import authRoutes from './routes/authRoutes';
+import movieRoutes from './routes/movieRoutes';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/bookit', movieRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {

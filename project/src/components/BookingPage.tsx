@@ -25,7 +25,7 @@ const BookingPage = () => {
       name: "INOX Pacific Mall, Jasola Delhi",
       address: "Bookit INOX Limited, Delhi Pacific Mall, Pacific Mall",
       distance: "11.4 km away",
-      showTimes: [{ time: "03:55 PM", language: "ENGLISH" }]
+      showTimes: [{ time: "03:55 PM", languages: "ENGLISH" }]
     },
     {
       id: 2,
@@ -145,7 +145,7 @@ const BookingPage = () => {
                     onClick={handleTimeClick}
                     className="px-6 py-3 border border-gray-200 rounded hover:border-yellow-400 text-center"
                   >
-                    <span className="block text-sm text-gray-600">{show.language}</span>
+                    <span className="block text-sm text-gray-600">{show.languages}</span>
                     <span className="block font-bold mt-1">{show.time}</span>
                   </button>
                 ))}

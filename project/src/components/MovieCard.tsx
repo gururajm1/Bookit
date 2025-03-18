@@ -3,9 +3,9 @@ import { memo } from 'react';
 interface MovieCardProps {
   title: string;
   image: string;
-  language: string;
+  languages: string;
   certification: string;
-  genres: string[];
+  genres: string;
   isNewRelease?: boolean;
   releaseDate?: string;
   showSubtitles?: boolean;
@@ -14,7 +14,7 @@ interface MovieCardProps {
 const MovieCard = memo<MovieCardProps>(({
   title,
   image,
-  language,
+  languages,
   certification,
   genres,
   isNewRelease,
@@ -25,6 +25,8 @@ const MovieCard = memo<MovieCardProps>(({
     // Handle booking logic here
     console.log('Booking movie:', title);
   };
+
+  const genreArray = genres.split(',').map((genre) => genre.trim());
 
   return (
     <div className="group h-full">
@@ -51,7 +53,7 @@ const MovieCard = memo<MovieCardProps>(({
           <div>
             <h3 className="text-lg font-semibold mb-2 line-clamp-2">{title}</h3>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2 py-1 bg-gray-100 rounded-md text-sm">{language}</span>
+              <span className="px-2 py-1 bg-gray-100 rounded-md text-sm">{languages}</span>
               <span className="px-2 py-1 bg-gray-100 rounded-md text-sm">{certification}</span>
               {showSubtitles && (
                 <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md text-sm">
@@ -64,9 +66,9 @@ const MovieCard = memo<MovieCardProps>(({
           {/* Genres - Fixed Height with Scroll */}
           <div className="mb-2 h-[60px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
             <div className="flex flex-wrap gap-2">
-              {genres.map((genre) => (
+              {genreArray.map((genre, index) => (
                 <span
-                  key={genre}
+                  key={index}
                   className="px-2 py-1 bg-gray-100 rounded-md text-sm whitespace-nowrap"
                 >
                   {genre}

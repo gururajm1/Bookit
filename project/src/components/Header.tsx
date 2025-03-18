@@ -84,7 +84,7 @@ const Header = () => {
                   type="text"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  placeholder="Search by movie, language or genre..."
+                  placeholder="Search by movie, languages or genre..."
                   className="pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:border-red-400 w-64"
                 />
                 <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
