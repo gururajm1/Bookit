@@ -3,8 +3,8 @@ import movieReducer from './slices/movieSlice';
 
 export const store = configureStore({
   reducer: {
-    movie: movieReducer,
-  },
+    movies: movieReducer
+  }
 });
 
 export type RootState = ReturnType<typeof store.getState>;

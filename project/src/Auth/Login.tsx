@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import pakka from "../assets/pakka.jpg";
 import authService from "../services/authService";
 import { validateEmail, validatePassword } from "../utils/validation";
+import { getRedirectPath } from '../services/authService';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -67,8 +68,13 @@ const Login = () => {
 
     setIsSubmitting(true);
     try {
-      await authService.login(formData);
-      navigate("/");
+      const success = await authService.login(formData);
+      if (success) {
+        const redirectPath = getRedirectPath();
+        navigate(redirectPath);
+      } else {
+        setServerError('Invalid credentials');
+      }
     } catch (err: any) {
       setServerError(err.response?.data?.message || "Login failed. Please try again.");
     } finally {

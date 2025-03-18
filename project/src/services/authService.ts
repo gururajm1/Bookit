@@ -71,4 +71,35 @@ class AuthService {
   }
 }
 
-export default new AuthService();
+const authService = new AuthService();
+
+// Auth service functions
+export const isAuthenticated = () => {
+  const token = localStorage.getItem('token');
+  console.log('Token:', token);
+  console.log('Is token valid:', !!token);
+  return !!token;
+};
+
+export const login = async (credentials: { email: string; password: string }) => {
+  // Implement login logic here
+  const response = await authService.login(credentials);
+  if (response.token) {
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('user', JSON.stringify(response.user));
+  }
+  return response.success;
+};
+
+export const logout = () => {
+  authService.logout();
+};
+
+export const getRedirectPath = () => {
+  const path = sessionStorage.getItem('redirectAfterLogin');
+  console.log('Redirect Path:', path);
+  sessionStorage.removeItem('redirectAfterLogin');
+  return path || '/dash';
+};
+
+export default authService;

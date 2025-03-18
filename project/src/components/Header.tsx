@@ -1,45 +1,33 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { Home, Clock, Film, Gift, Users, Import as Passport, Menu, Search, User, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { Home, Clock, Film, Gift, Users, Import as Passport, Search, ChevronDown, MapPin } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSelectedLocation, selectLocation } from '../redux/slices/movieSlice';
 
 const INDIAN_CITIES = [
-  'Delhi-NCR', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 
+  'Delhi-NCR', 'Mumbai', 'Chennai', 'Bangalore', 'Kolkata', 
   'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow',
   'Chandigarh', 'Kochi', 'Indore', 'Bhopal', 'Nagpur'
 ];
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const reduxLocation = useSelector(selectLocation);
+  
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCity, setSelectedCity] = useState('Delhi-NCR');
+  const [selectedCity, setSelectedCity] = useState(reduxLocation || 'Delhi-NCR');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
-  const searchTimeoutRef = useRef<number>();
-
-  // Debounced search handler
-  const debouncedSearch = useCallback((value: string) => {
-    const searchEvent = new CustomEvent('movieSearch', { 
-      detail: { query: value }
-    });
-    window.dispatchEvent(searchEvent);
-  }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    // Clear previous timeout
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-    // Set new timeout
-    searchTimeoutRef.current = window.setTimeout(() => debouncedSearch(value), 300);
   };
 
   const handleCitySelect = (city: string) => {
     setSelectedCity(city);
     setShowCityDropdown(false);
-    // Dispatch city change event
-    const cityEvent = new CustomEvent('cityChange', { 
-      detail: { city } 
-    });
-    window.dispatchEvent(cityEvent);
+    
+    // Dispatch to Redux
+    dispatch(setSelectedLocation(city));
   };
 
   return (
@@ -89,11 +77,13 @@ const Header = () => {
                 />
                 <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
               </div>
+
               <div className="relative">
                 <button 
                   onClick={() => setShowCityDropdown(!showCityDropdown)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-400 flex items-center space-x-1"
                 >
+                  <MapPin className="text-gray-400" size={16} />
                   <span>{selectedCity}</span>
                   <ChevronDown size={16} />
                 </button>
