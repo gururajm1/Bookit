@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { ChevronLeft } from 'lucide-react';
 import { 
@@ -11,10 +11,9 @@ import {
   removeSelectedSeat,
   clearSelectedSeats
 } from '../redux/slices/movieSlice';
-import { format } from 'date-fns';
 
 interface Seat {
-  id: string;
+  id: number;
   row: string;
   number: number;
   status: 'available' | 'selected' | 'booked';
@@ -23,6 +22,7 @@ interface Seat {
 const SeatSelection = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { id } = useParams();
   
   const selectedMovie = useSelector(selectMovie);
   const selectedCinema = useSelector(selectCinema);
@@ -42,33 +42,47 @@ const SeatSelection = () => {
     setTotalAmount(selectedSeats.length * (selectedCinema?.price || 0));
   }, [selectedSeats, selectedCinema]);
 
-  // Generate seats layout
-  const generateSeats = (row: string, count: number): Seat[] => {
-    return Array.from({ length: count }, (_, i) => {
-      const seatNumber = i + 1;
-      return {
-        id: `${row}${seatNumber}`,
-        row,
-        number: seatNumber,
-        status: selectedCinema?.seatsBooked.includes(seatNumber) ? 'booked' : 'available'
-      };
-    });
+  // Define rows for the theater
+  const rows = [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'
+  ];
+  
+  // Generate all seats with unique numbers from 1 to 200
+  const generateAllSeats = (): Seat[] => {
+    const seats: Seat[] = [];
+    let seatNumber = 1;
+    
+    for (const row of rows) {
+      for (let i = 1; i <= 15; i++) {
+        if (seatNumber <= 200) {
+          seats.push({
+            id: seatNumber,
+            row,
+            number: i,
+            status: selectedCinema?.seatsBooked.includes(seatNumber) ? 'booked' : 'available'
+          });
+          seatNumber++;
+        }
+      }
+    }
+    
+    return seats;
   };
-
-  const rows = {
-    classic: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
-    prime: ['J', 'K', 'L', 'M']
+  
+  const allSeats = generateAllSeats();
+  
+  // Get seats for a specific row
+  const getSeatsForRow = (row: string): Seat[] => {
+    return allSeats.filter(seat => seat.row === row);
   };
 
   const handleSeatClick = (seat: Seat) => {
     if (seat.status === 'booked') return;
-
-    const seatNumber = parseInt(seat.id.replace(/[A-Z]/g, ''));
     
-    if (selectedSeats.includes(seatNumber)) {
-      dispatch(removeSelectedSeat(seatNumber));
+    if (selectedSeats.includes(seat.id)) {
+      dispatch(removeSelectedSeat(seat.id));
     } else {
-      dispatch(addSelectedSeat(seatNumber));
+      dispatch(addSelectedSeat(seat.id));
     }
   };
 
@@ -77,7 +91,7 @@ const SeatSelection = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -96,13 +110,13 @@ const SeatSelection = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex gap-8">
+        <div className="flex flex-col md:flex-row gap-8">
           {/* Seats Layout */}
-          <div className="flex-1">
+          <div className="flex-1 bg-white rounded-lg shadow-md p-6">
             {/* Screen */}
-            <div className="text-center mb-12">
-              <div className="w-3/4 h-8 mx-auto bg-gray-200 rounded-t-full"></div>
-              <p className="mt-2 text-sm text-gray-500">SCREEN</p>
+            <div className="text-center mb-10">
+              <div className="w-3/4 h-8 mx-auto bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300 rounded-t-full"></div>
+              <p className="mt-2 text-sm text-gray-500 font-medium">SCREEN</p>
             </div>
 
             {/* Legend */}
@@ -121,60 +135,101 @@ const SeatSelection = () => {
               </div>
             </div>
 
+            {/* Seat Categories */}
+            <div className="mb-4 flex justify-center gap-8">
+              <div className="text-center">
+                <span className="text-sm font-medium text-gray-600">PREMIUM - ₹{selectedCinema.price + 50}</span>
+              </div>
+              <div className="text-center">
+                <span className="text-sm font-medium text-gray-600">EXECUTIVE - ₹{selectedCinema.price + 30}</span>
+              </div>
+              <div className="text-center">
+                <span className="text-sm font-medium text-gray-600">REGULAR - ₹{selectedCinema.price}</span>
+              </div>
+            </div>
+
             {/* Seats */}
-            <div className="space-y-12">
-              {/* Classic Seats */}
-              <div>
-                <h3 className="text-center mb-4">CLASSIC (₹{selectedCinema.price})</h3>
-                <div className="grid gap-2">
-                  {rows.classic.map(row => (
-                    <div key={row} className="flex items-center gap-2">
-                      <span className="w-6 text-right">{row}</span>
+            <div className="space-y-8 overflow-x-auto">
+              <div className="grid gap-2 pb-4">
+                {/* Premium (First 3 rows) */}
+                <div className="mb-8">
+                  {rows.slice(0, 3).map(row => (
+                    <div key={row} className="flex items-center gap-2 mb-2">
+                      <span className="w-6 text-right font-medium text-gray-700">{row}</span>
                       <div className="flex gap-1 flex-1 justify-center">
-                        {generateSeats(row, 25).map(seat => {
-                          const seatNumber = parseInt(seat.id.replace(/[A-Z]/g, ''));
-                          const isSelected = selectedSeats.includes(seatNumber);
+                        {getSeatsForRow(row).map(seat => {
+                          const isSelected = selectedSeats.includes(seat.id);
                           const isBooked = seat.status === 'booked';
                           return (
                             <button
                               key={seat.id}
-                              className={`w-6 h-6 text-xs rounded ${
+                              className={`w-7 h-7 text-xs rounded ${
                                 isBooked
                                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                   : isSelected
                                   ? 'bg-green-500 text-white'
-                                  : 'bg-white border border-gray-300 hover:border-green-500 text-gray-700'
+                                  : 'bg-white border border-red-300 hover:border-green-500 text-gray-700'
                               }`}
                               onClick={() => handleSeatClick(seat)}
                               disabled={isBooked}
+                              title={`${seat.row}${seat.number} (Seat ${seat.id})`}
                             >
                               {seat.number}
                             </button>
                           );
                         })}
                       </div>
-                      <span className="w-6">{row}</span>
+                      <span className="w-6 font-medium text-gray-700">{row}</span>
                     </div>
                   ))}
                 </div>
-              </div>
 
-              {/* Prime Seats */}
-              <div>
-                <h3 className="text-center mb-4">PRIME (₹{selectedCinema.price + 30})</h3>
-                <div className="grid gap-2">
-                  {rows.prime.map(row => (
-                    <div key={row} className="flex items-center gap-2">
-                      <span className="w-6 text-right">{row}</span>
+                {/* Executive (Next 5 rows) */}
+                <div className="mb-8">
+                  {rows.slice(3, 8).map(row => (
+                    <div key={row} className="flex items-center gap-2 mb-2">
+                      <span className="w-6 text-right font-medium text-gray-700">{row}</span>
                       <div className="flex gap-1 flex-1 justify-center">
-                        {generateSeats(row, 25).map(seat => {
-                          const seatNumber = parseInt(seat.id.replace(/[A-Z]/g, ''));
-                          const isSelected = selectedSeats.includes(seatNumber);
+                        {getSeatsForRow(row).map(seat => {
+                          const isSelected = selectedSeats.includes(seat.id);
                           const isBooked = seat.status === 'booked';
                           return (
                             <button
                               key={seat.id}
-                              className={`w-6 h-6 text-xs rounded ${
+                              className={`w-7 h-7 text-xs rounded ${
+                                isBooked
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                  : isSelected
+                                  ? 'bg-green-500 text-white'
+                                  : 'bg-white border border-blue-300 hover:border-green-500 text-gray-700'
+                              }`}
+                              onClick={() => handleSeatClick(seat)}
+                              disabled={isBooked}
+                              title={`${seat.row}${seat.number} (Seat ${seat.id})`}
+                            >
+                              {seat.number}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <span className="w-6 font-medium text-gray-700">{row}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Regular (Remaining rows) */}
+                <div>
+                  {rows.slice(8).map(row => (
+                    <div key={row} className="flex items-center gap-2 mb-2">
+                      <span className="w-6 text-right font-medium text-gray-700">{row}</span>
+                      <div className="flex gap-1 flex-1 justify-center">
+                        {getSeatsForRow(row).map(seat => {
+                          const isSelected = selectedSeats.includes(seat.id);
+                          const isBooked = seat.status === 'booked';
+                          return (
+                            <button
+                              key={seat.id}
+                              className={`w-7 h-7 text-xs rounded ${
                                 isBooked
                                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                   : isSelected
@@ -183,13 +238,14 @@ const SeatSelection = () => {
                               }`}
                               onClick={() => handleSeatClick(seat)}
                               disabled={isBooked}
+                              title={`${seat.row}${seat.number} (Seat ${seat.id})`}
                             >
                               {seat.number}
                             </button>
                           );
                         })}
                       </div>
-                      <span className="w-6">{row}</span>
+                      <span className="w-6 font-medium text-gray-700">{row}</span>
                     </div>
                   ))}
                 </div>
@@ -198,8 +254,9 @@ const SeatSelection = () => {
           </div>
 
           {/* Booking Summary */}
-          <div className="w-80 bg-white p-4 rounded-lg border border-gray-200">
-            <div className="flex gap-4 mb-4">
+          <div className="w-full md:w-80 bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-bold mb-4">Booking Summary</h2>
+            <div className="flex gap-4 mb-6">
               <img
                 src={selectedMovie.image}
                 alt={selectedMovie.title}
@@ -218,26 +275,37 @@ const SeatSelection = () => {
               <div>
                 <h4 className="font-bold mb-2">SELECTED SEATS ({selectedSeats.length})</h4>
                 {selectedSeats.length > 0 ? (
-                  <div className="bg-gray-50 p-2 rounded">
-                    {selectedSeats.map(seat => (
-                      <span key={seat} className="inline-block mr-2">{seat}</span>
-                    ))}
+                  <div className="bg-gray-50 p-3 rounded">
+                    <div className="flex flex-wrap gap-1">
+                      {selectedSeats.map(seatId => {
+                        const seat = allSeats.find(s => s.id === seatId);
+                        return (
+                          <span key={seatId} className="inline-block px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                            {seat ? `${seat.row}${seat.number}` : seatId}
+                          </span>
+                        );
+                      })}
+                    </div>
                   </div>
                 ) : (
                   <p className="text-sm text-gray-500">No seats selected</p>
                 )}
               </div>
 
-              <div>
+              <div className="border-t border-gray-200 pt-4">
                 <h4 className="font-bold mb-2">PAYMENT DETAILS</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Tickets ({selectedSeats.length})</span>
                     <span>₹{totalAmount}</span>
                   </div>
-                  <div className="flex justify-between font-bold">
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>Convenience Fee</span>
+                    <span>₹{selectedSeats.length > 0 ? 30 : 0}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200">
                     <span>Total Amount</span>
-                    <span>₹{totalAmount}</span>
+                    <span>₹{totalAmount + (selectedSeats.length > 0 ? 30 : 0)}</span>
                   </div>
                 </div>
               </div>
