@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import MovieCard from './MovieCard';
+import Header from './Header';
 
 interface Movie {
   id: string;
@@ -32,10 +33,10 @@ const createSearchCache = () => {
     clear: () => {
       try {
         Object.keys(sessionStorage).forEach(key => {
-          if (key.startsWith('search:')) {
-            sessionStorage.removeItem(key);
-          }
-        });
+        if (key.startsWith('search:')) {
+          sessionStorage.removeItem(key);
+        }
+      });
       } catch {
         // Handle storage errors silently
       }
@@ -148,6 +149,7 @@ const MovieList = () => {
         {visibleMovies?.map((movie: Movie) => (
           <MovieCard
             key={movie.id}
+            id={movie.id}
             title={movie.title}
             image={movie.image}
             languages={movie.languages}

@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { ChevronLeft, MapPin, Heart, Share2, Search } from 'lucide-react';
 import { format } from 'date-fns';
+import { selectMovie } from '../redux/slices/movieSlice';
 
 const BookingPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const selectedMovie = useSelector(selectMovie);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showTimeRange, setShowTimeRange] = useState([8, 24]);
+
+  // Redirect to dashboard if no movie is selected
+  useEffect(() => {
+    if (!selectedMovie) {
+      navigate('/dash');
+    }
+  }, [selectedMovie, navigate]);
 
   const dates = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
@@ -37,24 +47,27 @@ const BookingPage = () => {
     // Add more cinemas...
   ];
 
+  if (!selectedMovie) {
+    return <div className="min-h-screen bg-[#1a1a1a] text-white flex items-center justify-center">Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-[#1a1a1a]">
       {/* Movie Header */}
       <div className="bg-gradient-to-b from-black to-transparent">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center text-white gap-4">
-            <button className="hover:text-yellow-400">
+            <button className="hover:text-yellow-400" onClick={() => navigate('/dash')}>
               <ChevronLeft className="w-6 h-6" />
             </button>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold">The Day the Earth Blew Up: A Looney Tunes Movie</h1>
+              <h1 className="text-2xl font-bold">{selectedMovie.title}</h1>
               <div className="flex items-center gap-2 text-sm mt-1">
-                <span className="px-2 py-0.5 border border-white/30 rounded">U</span>
-                <span>1h 31m</span>
+                <span className="px-2 py-0.5 border border-white/30 rounded">{selectedMovie.certification}</span>
+                <span>{selectedMovie.languages}</span>
                 <span>•</span>
-                <span>Animation, Adventure, Comedy</span>
-                <span>•</span>
-                <span>English</span>
+                <span>{selectedMovie.genres}</span>
+                {selectedMovie.isNewRelease && <span className="text-red-500">• New Release</span>}
               </div>
             </div>
           </div>

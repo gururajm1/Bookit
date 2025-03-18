@@ -44,7 +44,7 @@ const Header = () => {
 
   return (
     <div>
-      {window.location.pathname === "/" ? 
+      {window.location.pathname === "/dash" ? 
       (<header className="bg-white shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">

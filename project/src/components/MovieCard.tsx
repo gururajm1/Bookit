@@ -1,6 +1,10 @@
 import { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setSelectedMovie } from '../redux/slices/movieSlice';
 
 interface MovieCardProps {
+  id: string;
   title: string;
   image: string;
   languages: string;
@@ -12,6 +16,7 @@ interface MovieCardProps {
 }
 
 const MovieCard = memo<MovieCardProps>(({
+  id,
   title,
   image,
   languages,
@@ -21,9 +26,24 @@ const MovieCard = memo<MovieCardProps>(({
   releaseDate,
   showSubtitles
 }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const handleBook = () => {
-    // Handle booking logic here
-    console.log('Booking movie:', title);
+    // Dispatch movie data to Redux store
+    dispatch(setSelectedMovie({
+      id,
+      title,
+      image,
+      languages,
+      certification,
+      genres,
+      isNewRelease,
+      releaseDate
+    }));
+    
+    // Navigate to booking page
+    navigate(`/movie/${id}/booking`);
   };
 
   const genreArray = genres.split(',').map((genre) => genre.trim());
