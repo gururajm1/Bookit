@@ -237,23 +237,6 @@ const BookingPage: React.FC = () => {
                 <option value="06:">6 PM Shows</option>
                 <option value="09:">9 PM Shows</option>
               </select>
-              <select className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-red-400">
-                <option>Languages</option>
-                <option>ENGLISH</option>
-                <option>HINDI</option>
-                <option>TAMIL</option>
-              </select>
-              <select className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-red-400">
-                <option>Formats</option>
-                <option>2D</option>
-                <option>3D</option>
-                <option>IMAX</option>
-              </select>
-              <select className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-red-400">
-                <option>Accessibility</option>
-                <option>Wheelchair Access</option>
-                <option>Audio Description</option>
-              </select>
             </div>
           </div>
         </div>
@@ -282,6 +265,7 @@ const BookingPage: React.FC = () => {
                 <div className="mt-4 flex flex-wrap gap-3">
                   {cinema.showTimes.map((showTime) => renderShowTimeButton(cinema, showTime))}
                 </div>
+
               </div>
             ))}
           </div>
