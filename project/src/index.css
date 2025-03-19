@@ -9,8 +9,54 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 * {
   box-sizing: border-box;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
+/* ChatBot styles */
+.chatbot-container {
+  transition: all 0.3s ease;
+  transform-origin: bottom right;
+}
+
+.chatbot-container:hover {
+  transform: scale(1.05);
+}
+
+.chatbot-shadow {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.chatbot-shadow:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Search input styles */
+.search-input {
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
 }

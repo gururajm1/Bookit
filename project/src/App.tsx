@@ -32,46 +32,48 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-50">
           <Header />
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            
-            {/* Protected Routes */}
-            <Route path="/dash" element={
-              <ProtectedRoute>
-                <MovieList />
-              </ProtectedRoute>
-            } />
-            <Route path="/movie/:id/booking" element={
-              <ProtectedRoute>
-                <BookingPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/movie/:id/seats" element={
-              <ProtectedRoute>
-                <SeatSelection />
-              </ProtectedRoute>
-            } />
-            <Route path="/payment" element={
-              <ProtectedRoute>
-                <Payment />
-              </ProtectedRoute>
-            } />
-            <Route path="/booked-tickets" element={
-              <ProtectedRoute>
-                <BookedTickets />
-              </ProtectedRoute>
-            } />
+          <main className="relative">
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              
+              {/* Protected Routes */}
+              <Route path="/dash" element={
+                <ProtectedRoute>
+                  <MovieList />
+                </ProtectedRoute>
+              } />
+              <Route path="/movie/:id/booking" element={
+                <ProtectedRoute>
+                  <BookingPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/movie/:id/seats" element={
+                <ProtectedRoute>
+                  <SeatSelection />
+                </ProtectedRoute>
+              } />
+              <Route path="/payment" element={
+                <ProtectedRoute>
+                  <Payment />
+                </ProtectedRoute>
+              } />
+              <Route path="/booked-tickets" element={
+                <ProtectedRoute>
+                  <BookedTickets />
+                </ProtectedRoute>
+              } />
 
-            {/* Admin Routes - Commented out until admin components are implemented */}
-            {/* <Route path="/admin/*" element={
-              <AdminProtectedRoute>
-                <AdminDashboard />
-              </AdminProtectedRoute>
-            } /> */}
-          </Routes>
+              {/* Admin Routes - Commented out until admin components are implemented */}
+              {/* <Route path="/admin/*" element={
+                <AdminProtectedRoute>
+                  <AdminDashboard />
+                </AdminProtectedRoute>
+              } /> */}
+            </Routes>
+          </main>
         </div>
       </Router>
     </Provider>

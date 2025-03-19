@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import MovieCard from './MovieCard';
 import ChatBot from './ChatBot';
 import debounce from 'lodash/debounce';
+import { Search } from 'lucide-react';
 
 // Simple image cache for preloading
 const imageCache = new Map<string, HTMLImageElement>();
@@ -176,10 +177,39 @@ const MovieList = () => {
         const matchesSearch = query === '' || 
           movie.title.toLowerCase().includes(query) ||
           movie.languages.toLowerCase().includes(query) ||
-          movie.genres.toLowerCase().includes(query);
+          movie.genres.toLowerCase().split(',').some(genre => 
+            genre.trim().toLowerCase().includes(query)
+          );
         
         return matchesSearch;
       });
+      
+      // Sort results by relevance
+      if (query) {
+        results.sort((a, b) => {
+          const aTitle = a.title.toLowerCase();
+          const bTitle = b.title.toLowerCase();
+          const aGenres = a.genres.toLowerCase();
+          const bGenres = b.genres.toLowerCase();
+          
+          // Exact title matches first
+          if (aTitle === query && bTitle !== query) return -1;
+          if (bTitle === query && aTitle !== query) return 1;
+          
+          // Title starts with query next
+          if (aTitle.startsWith(query) && !bTitle.startsWith(query)) return -1;
+          if (bTitle.startsWith(query) && !aTitle.startsWith(query)) return 1;
+          
+          // Genre matches next
+          const aGenreMatch = aGenres.split(',').some(g => g.trim().toLowerCase() === query);
+          const bGenreMatch = bGenres.split(',').some(g => g.trim().toLowerCase() === query);
+          if (aGenreMatch && !bGenreMatch) return -1;
+          if (bGenreMatch && !aGenreMatch) return 1;
+          
+          // Default to alphabetical
+          return aTitle.localeCompare(bTitle);
+        });
+      }
       
       if (query) searchCache.set(cacheKey, results);
     }
@@ -253,22 +283,40 @@ const MovieList = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="w-full max-w-[2000px] mx-auto">
+        {/* Search Bar */}
+        <div className="px-8 py-4 bg-white shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search movies by title, genre..."
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-red-400"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            </div>
+          </div>
+        </div>
+
         <div 
           ref={containerRef}
-          className="relative h-[calc(100vh-80px)] overflow-y-auto overflow-x-hidden hide-scrollbar"
+          className="relative h-[calc(100vh-140px)] overflow-y-auto overflow-x-hidden hide-scrollbar"
           style={{
             perspective: '1000px',
             backfaceVisibility: 'hidden',
             transform: 'translate3d(0,0,0)',
             willChange: 'transform',
-            WebkitOverflowScrolling: 'touch'
+            WebkitOverflowScrolling: 'touch',
+            scrollPaddingBottom: '100px',
+            overscrollBehavior: 'none'
           }}
         >
           <div 
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 xl:gap-8 p-8"
             style={{
               minHeight: '100%',
-              paddingBottom: '100px',
+              paddingBottom: '120px',
               width: '100%',
               maxWidth: '100%',
               margin: '0 auto'
@@ -316,7 +364,8 @@ const MovieList = () => {
           )}
         </div>
 
-        <div className="relative z-20 mt-4">
+        {/* ChatBot with fixed positioning */}
+        <div className="fixed bottom-6 right-6 z-50">
           <ChatBot />
         </div>
       </div>
