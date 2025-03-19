@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Home, Clock, Film, Gift, Users, Import as Passport, Search, ChevronDown, MapPin } from 'lucide-react';
+import { Home, Clock, Film, Gift, Users, Import as Passport, Search, ChevronDown, MapPin, LogOut } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedLocation, selectLocation } from '../redux/slices/movieSlice';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -70,6 +70,19 @@ const Header = () => {
     }
   };
 
+  const handleLogout = () => {
+    // Clear all localStorage data
+    localStorage.clear();
+    
+    // Reset states
+    setSearchQuery('');
+    setSelectedCity('Delhi-NCR');
+    setShowCityDropdown(false);
+    
+    // Navigate to home page
+    navigate('/');
+  };
+
   // Routes where header should be shown
   const showHeaderRoutes = ['/dash', '/movie', '/booked-tickets', '/showtimings', '/offers', '/investor', '/passport'];
   const shouldShowHeader = showHeaderRoutes.some(route => location.pathname.startsWith(route));
@@ -128,6 +141,22 @@ const Header = () => {
                       ))}
                     </div>
                   )}
+                </div>
+
+                <div className="relative group">
+                  <button
+                    onClick={handleLogout}
+                    className="group flex items-center justify-center space-x-1.5 px-4 py-1.5 bg-gray-50 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-md border border-gray-200 shadow-sm transition-all duration-200 ease-in-out transform hover:-translate-y-0.5"
+                    title="Logout"
+                  >
+                    <LogOut size={16} className="text-gray-500 group-hover:text-red-500" />
+                    <span className="hidden sm:inline font-medium">Logout</span>
+                  </button>
+                  <div className="absolute opacity-0 group-hover:opacity-100 bottom-full right-0 mb-1 transition-opacity duration-200 pointer-events-none">
+                    <div className="bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-md whitespace-nowrap">
+                      Sign out
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

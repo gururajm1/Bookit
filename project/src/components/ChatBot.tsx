@@ -40,21 +40,6 @@ const ChatBot: React.FC = () => {
   const [movieContext, setMovieContext] = useState<MovieContext>({});
   const [lastRecommendedMovies, setLastRecommendedMovies] = useState<Movie[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatbotRef = useRef<HTMLDivElement>(null);
-
-  // Add click outside handler
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (chatbotRef.current && !chatbotRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   // Initialize chat with welcome message
   useEffect(() => {
@@ -289,32 +274,24 @@ Just let me know what you'd prefer!
   };
 
   return (
-    <div className="fixed bottom-[20px] right-[20px] z-50" ref={chatbotRef}>
-      <div className="relative group">
-        <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="bg-red-500 text-white rounded-full p-3 shadow-lg flex items-center justify-center transition-colors duration-200 ease-in-out transform-gpu"
-          aria-label={isOpen ? "Close chat" : "Open chat"}
-        >
-          {isOpen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
-          )}
-        </button>
-        <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-          <div className="bg-gray-800 text-white text-sm px-3 py-1 rounded-md whitespace-nowrap">
-            {isOpen ? "Close chat" : "Open chat"}
-          </div>
-        </div>
-      </div>
+    <div className="fixed bottom-4 right-4 z-50">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="bg-red-500 hover:bg-red-600 text-white rounded-full p-3 shadow-lg flex items-center justify-center"
+      >
+        {isOpen ? (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+        )}
+      </button>
 
       {isOpen && (
-        <div className="absolute bottom-[calc(100%+5px)] right-0 w-96 bg-white rounded-lg shadow-xl border border-gray-200 transform-gpu">
+        <div className="absolute bottom-16 right-0 w-96 bg-white rounded-lg shadow-xl border border-gray-200">
           <div className="h-96 flex flex-col">
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.map((message, index) => (

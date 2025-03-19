@@ -8,6 +8,7 @@ import { OpenAI } from 'openai';
 import movieRoutes from './routes/movieRoutes';
 import cinemaRoutes from './routes/cinemaRoutes';
 import userRoutes from './routes/userRoutes';
+import adminRoutes from './routes/adminRoutes'
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use('/api/auth', authRoutes);
 app.use('/bookit', movieRoutes);
 app.use('/bookit/cinema', cinemaRoutes);
 app.use('/bookit/user', userRoutes);
+app.use('/admin', adminRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {

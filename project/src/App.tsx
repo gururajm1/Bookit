@@ -12,6 +12,7 @@ import Login from './Auth/Login';
 import Signup from './Auth/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
 import BookedTickets from './components/BookedTickets';
+import Dashboard from './components/dashboard';
 
 /* Admin Protected Route Component - Uncomment when implementing admin features
 const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -65,7 +66,11 @@ function App() {
                   <BookedTickets />
                 </ProtectedRoute>
               } />
-
+              <Route path="/admin/dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
               {/* Admin Routes - Commented out until admin components are implemented */}
               {/* <Route path="/admin/*" element={
                 <AdminProtectedRoute>
