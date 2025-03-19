@@ -40,7 +40,7 @@ const BookedTickets: FC = () => {
           localStorage.setItem('userEmail', user.email);
         }
 
-        const response = await fetch(`http://localhost:5002/bookit/user/booked-tickets?email=${encodeURIComponent(userEmail || JSON.parse(localStorage.getItem('user') || '{}').email)}`);
+        const response = await fetch(`http://localhost:1001/bookit/user/booked-tickets?email=${encodeURIComponent(userEmail || JSON.parse(localStorage.getItem('user') || '{}').email)}`);
         
         if (!response.ok) {
           throw new Error('Failed to fetch booked tickets');

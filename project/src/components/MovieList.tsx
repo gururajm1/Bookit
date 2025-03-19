@@ -58,7 +58,7 @@ const MovieList = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch('http://localhost:5002/bookit/movies'); // Updated URL to match server route
+        const response = await fetch('http://localhost:1001/bookit/movies'); // Updated URL to match server route
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

@@ -13,7 +13,6 @@ const openai_1 = require("openai");
 const movieRoutes_1 = __importDefault(require("./routes/movieRoutes"));
 const cinemaRoutes_1 = __importDefault(require("./routes/cinemaRoutes"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
-const Movie_1 = require("./models/Movie");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 // Initialize OpenAI
@@ -41,123 +40,113 @@ app.use('/bookit/user', userRoutes_1.default);
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
-// Enhanced OpenAI chat endpoint
+//chat bot api endpoint
 app.post('/api/chat', async (req, res) => {
+    var _a, _b, _c;
     try {
         const { messages } = req.body;
-        const lastMessage = messages[messages.length - 1].content.toLowerCase();
-        // First try to match with our movie database
-        const movieData = await Movie_1.MovieModel.find({});
-        let localResponse = '';
-        // Enhanced movie matching logic
-        if (movieData.length > 0) {
-            const movieMatches = movieData.filter((movie) => {
-                const searchTerms = lastMessage.split(' ');
-                return searchTerms.some((term) => movie.title.toLowerCase().includes(term) ||
-                    movie.genres.toLowerCase().includes(term) ||
-                    movie.languages.toLowerCase().includes(term) ||
-                    movie.certification.toLowerCase().includes(term) ||
-                    (movie.cast && movie.cast.some((actor) => actor.toLowerCase().includes(term))) ||
-                    (movie.director && movie.director.toLowerCase().includes(term)));
-            });
-            if (movieMatches.length > 0) {
-                localResponse = formatMovieResponse(movieMatches, lastMessage);
+        if (!messages || !Array.isArray(messages)) {
+            return res.status(400).json({ error: 'Invalid request format' });
+        }
+        // Get the last user message
+        const lastUserMessage = ((_a = messages.filter(m => m.role === 'user').pop()) === null || _a === void 0 ? void 0 : _a.content.toLowerCase()) || '';
+        // Check if it's a movie-related query
+        const isMovieQuery = lastUserMessage.includes('movie') ||
+            lastUserMessage.includes('film') ||
+            lastUserMessage.includes('watch') ||
+            lastUserMessage.includes('show') ||
+            lastUserMessage.includes('recommend') ||
+            lastUserMessage.includes('suggest');
+        // If it's a movie query, we'll let the frontend handle it
+        // since it already has the movie data and can provide better recommendations
+        if (isMovieQuery) {
+            try {
+                // Try to use OpenAI API for more natural responses
+                const response = await openai.chat.completions.create({
+                    model: 'gpt-3.5-turbo',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: 'You are a helpful assistant for a movie booking website. You can provide information about movies, help with booking issues, and answer general questions. When users ask about specific movies or recommendations, acknowledge their request but don\'t make up any specific movie titles or details as the frontend will handle that part.'
+                        },
+                        ...messages
+                    ],
+                    max_tokens: 150,
+                });
+                res.json({
+                    message: ((_b = response.choices[0]) === null || _b === void 0 ? void 0 : _b.message) || { content: 'Sorry, I could not process your request.' }
+                });
             }
+            catch (openaiError) {
+                console.error('Error calling OpenAI API:', openaiError);
+                // Fallback for movie queries
+                let responseContent = "I can help you find movies you might enjoy. What genres or languages are you interested in?";
+                res.json({
+                    message: { role: 'assistant', content: responseContent }
+                });
+            }
+            return;
         }
-        if (localResponse) {
-            return res.json({ message: { role: 'assistant', content: localResponse } });
+        // For non-movie queries, proceed with regular processing
+        try {
+            // Try to use OpenAI API
+            const response = await openai.chat.completions.create({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a helpful assistant for a movie booking website. You can provide information about movies, help with booking issues, and answer general questions.'
+                    },
+                    ...messages
+                ],
+                max_tokens: 150,
+            });
+            res.json({
+                message: ((_c = response.choices[0]) === null || _c === void 0 ? void 0 : _c.message) || { content: 'Sorry, I could not process your request.' }
+            });
         }
-        // If no local match, use OpenAI with enhanced movie-focused prompt
-        const openaiMessages = [
-            {
-                role: 'system',
-                content: `You are a knowledgeable movie booking assistant. Focus on providing accurate, relevant information about movies, actors, directors, and cinema. 
-                 If asked about non-movie topics, politely redirect the conversation to movies.
-                 Keep responses concise and well-structured.
-                 Format responses with appropriate emojis and markdown for better readability.
-                 Current date: ${new Date().toLocaleDateString()}`
-            },
-            ...messages.slice(-5), // Keep context manageable
-        ];
-        const completion = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: openaiMessages,
-            temperature: 0.7,
-            max_tokens: 500,
-        });
-        const aiResponse = completion.choices[0].message.content;
-        res.json({ message: { role: 'assistant', content: aiResponse } });
+        catch (openaiError) {
+            console.error('Error calling OpenAI API:', openaiError);
+            // Fallback to predefined responses
+            let responseContent = 'I apologize, but I am currently experiencing technical difficulties. Please try again later.';
+            // Simple pattern matching for common queries
+            if (lastUserMessage.includes('hello') || lastUserMessage.includes('hi') || lastUserMessage.includes('hey')) {
+                responseContent = 'Hello! How can I help you with your movie booking today?';
+            }
+            else if (lastUserMessage.includes('book') || lastUserMessage.includes('ticket') || lastUserMessage.includes('seat')) {
+                responseContent = 'To book tickets, simply select a movie from our homepage, choose your preferred showtime, and select your seats.';
+            }
+            else if (lastUserMessage.includes('cancel') || lastUserMessage.includes('refund')) {
+                responseContent = 'For cancellations or refunds, please contact our customer support team.';
+            }
+            else if (lastUserMessage.includes('price') || lastUserMessage.includes('cost') || lastUserMessage.includes('fee')) {
+                responseContent = 'Ticket prices vary depending on the movie, showtime, and seat selection. You can see the exact price during the booking process.';
+            }
+            else if (lastUserMessage.includes('time') || lastUserMessage.includes('schedule') || lastUserMessage.includes('when')) {
+                responseContent = 'Movie showtimes are displayed on each movie\'s detail page. You can select your preferred date to see available times.';
+            }
+            else if (lastUserMessage.includes('payment') || lastUserMessage.includes('pay')) {
+                responseContent = 'We accept various payment methods including credit/debit cards and UPI. All transactions are secure.';
+            }
+            else if (lastUserMessage.includes('location') || lastUserMessage.includes('theater') || lastUserMessage.includes('cinema')) {
+                responseContent = 'You can select your preferred theater location during the booking process.';
+            }
+            else if (lastUserMessage.includes('food') || lastUserMessage.includes('snack') || lastUserMessage.includes('popcorn')) {
+                responseContent = 'Food and beverages can be pre-ordered during the booking process or purchased at the theater.';
+            }
+            else if (lastUserMessage.includes('thank')) {
+                responseContent = 'You\'re welcome! Is there anything else I can help you with?';
+            }
+            res.json({
+                message: { role: 'assistant', content: responseContent }
+            });
+        }
     }
     catch (error) {
-        console.error('Chat error:', error);
-        res.status(500).json({
-            message: {
-                role: 'assistant',
-                content: "I apologize, but I'm having trouble processing your request. Please try asking about our current movies and showtimes."
-            }
-        });
+        console.error('Error in chat endpoint:', error);
+        res.status(500).json({ error: 'Failed to process request' });
     }
 });
-// Helper function to format movie responses
-function formatMovieResponse(movies, query) {
-    // Check for specific question types
-    const isActorQuery = query.includes('actor') || query.includes('cast') || query.includes('who plays');
-    const isDirectorQuery = query.includes('director') || query.includes('directed by');
-    const isGenreQuery = query.includes('genre') || query.includes('type of movie');
-    const isRatingQuery = query.includes('rating') || query.includes('certification');
-    const isLanguageQuery = query.includes('language') || query.includes('available in');
-    const isPlotQuery = query.includes('about') || query.includes('plot') || query.includes('story');
-    const isNewReleaseQuery = query.includes('new') || query.includes('latest') || query.includes('recent');
-    let response = '';
-    if (movies.length === 1) {
-        const movie = movies[0];
-        if (isActorQuery && movie.cast) {
-            response = `🎭 The cast of "${movie.title}" includes: ${movie.cast.join(', ')}`;
-        }
-        else if (isDirectorQuery && movie.director) {
-            response = `🎥 "${movie.title}" is directed by ${movie.director}`;
-        }
-        else if (isGenreQuery) {
-            response = `🎬 "${movie.title}" belongs to the following genres: ${movie.genres}`;
-        }
-        else if (isRatingQuery) {
-            response = `⭐ "${movie.title}" has a certification rating of ${movie.certification}`;
-        }
-        else if (isLanguageQuery) {
-            response = `🌍 "${movie.title}" is available in: ${movie.languages}`;
-        }
-        else if (isPlotQuery && movie.description) {
-            response = `📖 Here's what "${movie.title}" is about:\n\n${movie.description}`;
-        }
-        else {
-            // Comprehensive movie details
-            response = `🎬 **${movie.title}**\n\n`;
-            if (movie.description)
-                response += `${movie.description}\n\n`;
-            response += `🎭 **Genre:** ${movie.genres}\n`;
-            response += `🌍 **Language:** ${movie.languages}\n`;
-            response += `⭐ **Certification:** ${movie.certification}\n`;
-            if (movie.duration)
-                response += `⏱️ **Duration:** ${movie.duration}\n`;
-            if (movie.director)
-                response += `🎥 **Director:** ${movie.director}\n`;
-            if (movie.cast)
-                response += `🎭 **Cast:** ${movie.cast.join(', ')}\n`;
-            if (movie.releaseDate)
-                response += `📅 **Release Date:** ${movie.releaseDate}\n`;
-            if (movie.isNewRelease)
-                response += `🆕 **New Release!**\n`;
-        }
-    }
-    else if (isNewReleaseQuery) {
-        const newReleases = movies.filter(m => m.isNewRelease);
-        response = `🆕 Here are our new releases:\n\n${newReleases.map(m => `• **${m.title}** (${m.certification}) - ${m.genres}`).join('\n')}`;
-    }
-    else {
-        response = `🎬 Found ${movies.length} movies that might interest you:\n\n${movies.map((m, i) => `${i + 1}. **${m.title}** (${m.certification})\n   • ${m.genres}\n   • ${m.languages}${m.isNewRelease ? '\n   • 🆕 New Release!' : ''}`).join('\n\n')}`;
-    }
-    return response + '\n\nWould you like to know more about any of these movies or book tickets?';
-}
 // Connect to MongoDB
 mongoose_1.default.connect(process.env.MONGODB_URI)
     .then(() => console.log('Connected to MongoDB'))
@@ -170,7 +159,7 @@ app.use((err, req, res, next) => {
         message: 'Something went wrong!'
     });
 });
-const PORT = process.env.PORT || 1000;
+const PORT = process.env.PORT || 1001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

@@ -59,7 +59,7 @@ const ChatBot: React.FC = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch('http://localhost:5002/bookit/movies');
+        const response = await fetch('http://localhost:1001/bookit/movies');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         setMovies(data);

@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.movieSchema = exports.MovieModel = void 0;
+exports.Movie = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const movieSchema = new mongoose_1.Schema({
     id: {
@@ -65,30 +65,9 @@ const movieSchema = new mongoose_1.Schema({
     isNewRelease: {
         type: Boolean,
         default: false
-    },
-    description: {
-        type: String,
-        required: false
-    },
-    cast: {
-        type: [String],
-        required: false
-    },
-    director: {
-        type: String,
-        required: false
-    },
-    duration: {
-        type: String,
-        required: false
-    },
-    releaseDate: {
-        type: String,
-        required: false
     }
 }, {
     timestamps: true,
     collection: 'movies' // Explicitly set the collection name to match your database
 });
-exports.movieSchema = movieSchema;
-exports.MovieModel = mongoose_1.default.model('Movie', movieSchema);
+exports.Movie = mongoose_1.default.model('Movie', movieSchema);
