@@ -51,7 +51,7 @@ const SeatSelection = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:5006/bookit/cinema/booked-seats?theatreName=${encodeURIComponent(selectedCinema.name)}&date=${encodeURIComponent(selectedShowTime.date)}&showTime=${encodeURIComponent(selectedShowTime.time)}&movieName=${encodeURIComponent(selectedMovie.title)}`
+          `http://localhost:5002/bookit/cinema/booked-seats?theatreName=${encodeURIComponent(selectedCinema.name)}&date=${encodeURIComponent(selectedShowTime.date)}&showTime=${encodeURIComponent(selectedShowTime.time)}&movieName=${encodeURIComponent(selectedMovie.title)}`
         );
 
         if (!response.ok) {
@@ -146,7 +146,7 @@ const SeatSelection = () => {
     
     if (selectedSeats.includes(seat.id)) {
       dispatch(removeSelectedSeat(seat.id));
-    } else if (selectedSeats.length < 10) { 
+    } else if (selectedSeats.length < 200) { 
       dispatch(addSelectedSeat(seat.id));
     }
   };

@@ -42,7 +42,7 @@ const BookingPage: React.FC = () => {
 
   // Function to get seat availability color
   const getAvailabilityColor = (count: number) => {
-    if (count >= 200) return 'text-red-500 border-red-500';
+    if (count >= 210) return 'text-red-500 border-red-500';
     if (count >= 100) return 'text-yellow-500 border-yellow-500';
     return 'text-green-500 border-green-500';
   };
@@ -51,7 +51,7 @@ const BookingPage: React.FC = () => {
   const fetchSeatCount = async (cinema: Cinema, showTime: ShowTime) => {
     try {
       const formattedDate = format(selectedDate, 'dd-MM-yyyy');
-      const response = await fetch(`http://localhost:5006/bookit/cinema/seats-count?theatreName=${encodeURIComponent(cinema.name)}&date=${encodeURIComponent(formattedDate)}&showTime=${encodeURIComponent(showTime.time)}&movieName=${encodeURIComponent(selectedMovie?.title || '')}`);
+      const response = await fetch(`http://localhost:5002/bookit/cinema/seats-count?theatreName=${encodeURIComponent(cinema.name)}&date=${encodeURIComponent(formattedDate)}&showTime=${encodeURIComponent(showTime.time)}&movieName=${encodeURIComponent(selectedMovie?.title || '')}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch seat count');

@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import MovieCard from './MovieCard';
+import ChatBot from './ChatBot';
 
 interface Movie {
   id: string;
@@ -57,7 +58,7 @@ const MovieList = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch('http://localhost:5006/bookit/movies'); // Updated URL to match server route
+        const response = await fetch('http://localhost:5002/bookit/movies'); // Updated URL to match server route
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -171,6 +172,7 @@ const MovieList = () => {
           <p className="text-gray-500 text-lg">No movies found matching your criteria.</p>
         </div>
       )}
+      <ChatBot />
     </div>
   );
 };

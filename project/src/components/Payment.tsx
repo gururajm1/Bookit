@@ -193,7 +193,7 @@ const Payment = () => {
       console.log('Payment data:', paymentData);
 
       // Update cinema seats
-      const updateResponse = await fetch('http://localhost:5006/bookit/cinema/seats', {
+      const updateResponse = await fetch('http://localhost:5002/bookit/cinema/seats', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -225,7 +225,7 @@ const Payment = () => {
         throw new Error('User email not found');
       }
 
-      const userUpdateResponse = await fetch('http://localhost:5006/bookit/user/add-booking', {
+      const userUpdateResponse = await fetch('http://localhost:5002/bookit/user/add-booking', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -74,7 +74,23 @@ const userSchema = new mongoose_1.Schema({
     isAdmin: {
         type: Boolean,
         default: false
-    }
+    },
+    seatsBooked: [{
+            movieName: String,
+            movieCertification: String,
+            genres: String,
+            language: String,
+            theatreName: String,
+            theatreLocation: String,
+            showDate: String,
+            showTime: String,
+            totalAmount: Number,
+            selectedSeats: [String],
+            bookingDate: {
+                type: Date,
+                default: Date.now
+            }
+        }]
 }, {
     timestamps: true
 });
