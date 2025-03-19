@@ -221,6 +221,8 @@ const MovieList = () => {
   useEffect(() => {
     const handleSearch = (event: CustomEvent<{ query: string }>) => {
       setSearchQuery(event.detail.query);
+      // Clear the cache when search query changes
+      searchCache.clear();
     };
 
     const handleCityChange = (event: CustomEvent<{ city: string }>) => {
@@ -283,25 +285,9 @@ const MovieList = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="w-full max-w-[2000px] mx-auto">
-        {/* Search Bar */}
-        <div className="px-8 py-4 bg-white shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search movies by title, genre..."
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-red-400"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            </div>
-          </div>
-        </div>
-
         <div 
           ref={containerRef}
-          className="relative h-[calc(100vh-140px)] overflow-y-auto overflow-x-hidden hide-scrollbar"
+          className="relative h-[calc(100vh-80px)] overflow-y-auto overflow-x-hidden hide-scrollbar"
           style={{
             perspective: '1000px',
             backfaceVisibility: 'hidden',
@@ -364,9 +350,11 @@ const MovieList = () => {
           )}
         </div>
 
-        {/* ChatBot with fixed positioning */}
+        {/* ChatBot with fixed positioning and improved styling */}
         <div className="fixed bottom-6 right-6 z-50">
-          <ChatBot />
+          <div className="chatbot-container chatbot-shadow rounded-full">
+            <ChatBot />
+          </div>
         </div>
       </div>
     </div>
