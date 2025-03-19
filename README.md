@@ -30,7 +30,7 @@ OPENAI_API_KEY={YOUR_OPENAI_KEY})`
 
 After setting up the `project` and `server`, you can run the project by following these steps:
 
-1. Start the `server` by running `npm run dev   (npm run build - if needed)`.
+1. Start the `server` by running `npm run dev` if required do `npm run build` before the previous command.
 2. Start the `client` application by running `npm run dev` in the project directory.
 
 ![bookit-user](https://github.com/user-attachments/assets/3afd2237-1358-46ca-b8a5-a393a25c2ac7)
