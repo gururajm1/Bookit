@@ -136,6 +136,17 @@ const Dashboard: React.FC = () => {
     return timeString;
   };
 
+  // Format seats for display
+  const formatSeats = (seats: string[]) => {
+    if (!seats || seats.length === 0) return 'None';
+    
+    if (seats.length <= 5) {
+      return seats.join(', ');
+    }
+    
+    return `${seats.slice(0, 3).join(', ')} +${seats.length - 3} more`;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6">
@@ -148,15 +159,6 @@ const Dashboard: React.FC = () => {
             <div className="ml-8 bg-gray-100 rounded-md py-1 px-2 text-sm text-gray-600">
               Admin Dashboard
             </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button className="text-gray-600 hover:text-red-600 transition-colors">
-              <Search size={20} />
-            </button>
-            <button className="bg-red-600 text-white rounded-md py-2 px-4 flex items-center space-x-2 hover:bg-red-700 transition-colors">
-              <span>Export Data</span>
-              <Download size={16} />
-            </button>
           </div>
         </header>
 
@@ -340,14 +342,6 @@ const Dashboard: React.FC = () => {
           <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold text-gray-800">Popular Movies</h3>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-500">Sort by:</span>
-                <select className="border border-gray-200 rounded-md text-sm py-1 px-2">
-                  <option>Most Bookings</option>
-                  <option>Alphabetical</option>
-                  <option>Revenue</option>
-                </select>
-              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -382,15 +376,6 @@ const Dashboard: React.FC = () => {
           <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold text-gray-800">Popular Theaters</h3>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-500">Filter by:</span>
-                <select className="border border-gray-200 rounded-md text-sm py-1 px-2">
-                  <option>All Cities</option>
-                  <option>Delhi-NCR</option>
-                  <option>Mumbai</option>
-                  <option>Bangalore</option>
-                </select>
-              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -432,6 +417,9 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             
+            {/* Debug info - will be removed in production */}
+            
+            
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -459,12 +447,16 @@ const Dashboard: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {/* Mock time data */}
-                        {['14:30', '18:00', '21:30'][index % 3]}
+                        {/* Display showTime with fallback */}
+                        {booking.showTime || 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {/* Mock seat data */}
-                        {index % 2 === 0 ? 'A1, A2, A3' : 'B4, B5'}
+                        {/* Display selectedSeats with fallback */}
+                        {booking.selectedSeats && booking.selectedSeats.length > 0 
+                          ? (booking.selectedSeats.length > 5 
+                            ? `${booking.selectedSeats.slice(0, 3).join(', ')} +${booking.selectedSeats.length - 3} more` 
+                            : booking.selectedSeats.join(', '))
+                          : 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Completed</span>

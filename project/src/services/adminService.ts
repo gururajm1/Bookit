@@ -26,6 +26,7 @@ export interface DashboardData {
       movieName: string;
       theatreName: string;
       showDate: string;
+      showTime: string;
       totalAmount: number;
       selectedSeats: string[];
       bookingDate: string;

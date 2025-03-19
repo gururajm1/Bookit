@@ -95,7 +95,10 @@ const calculateBookingSummary = (users: any[]): BookingSummary => {
       summary.recentBookings.push({
         ...booking,
         userEmail: user.email,
-        userName: `${user.firstName} ${user.lastName}`
+        userName: `${user.firstName} ${user.lastName}`,
+        showTime: booking.showTime || 'N/A',
+        selectedSeats: booking.selectedSeats || [],
+        showDate: booking.showDate || 'N/A'
       });
     });
   });
