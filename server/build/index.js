@@ -17,6 +17,14 @@ const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
 app.use((0, morgan_1.default)('dev'));
+// Debug middleware for all routes
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    if (req.method === 'POST') {
+        console.log('Request body:', req.body);
+    }
+    next();
+});
 // Routes
 app.use('/api/auth', authRoutes_1.default);
 app.use('/bookit', movieRoutes_1.default);
@@ -37,7 +45,7 @@ app.use((err, req, res, next) => {
         message: 'Something went wrong!'
     });
 });
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5006;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

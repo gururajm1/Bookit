@@ -28,7 +28,7 @@ export interface Cinema {
   distance: string;
   location: string;
   showTimes: CinemaShowTime[];
-  seatsBooked: number[];
+  seatsBooked: string[];
   price: number;
 }
 
@@ -37,7 +37,7 @@ interface MovieState {
   selectedLocation: string;
   selectedCinema: CinemaType | null;
   selectedShowTime: CinemaShowTime | null;
-  selectedSeats: number[];
+  selectedSeats: string[];
   cachedMovies: {
     data: Movie[] | null;
     lastFetched: number;
@@ -118,12 +118,12 @@ const movieSlice = createSlice({
     setSelectedShowTime: (state, action: PayloadAction<CinemaShowTime>) => {
       state.selectedShowTime = action.payload;
     },
-    addSelectedSeat: (state, action: PayloadAction<number>) => {
+    addSelectedSeat: (state, action: PayloadAction<string>) => {
       if (!state.selectedSeats.includes(action.payload)) {
         state.selectedSeats.push(action.payload);
       }
     },
-    removeSelectedSeat: (state, action: PayloadAction<number>) => {
+    removeSelectedSeat: (state, action: PayloadAction<string>) => {
       state.selectedSeats = state.selectedSeats.filter(seat => seat !== action.payload);
     },
     clearSelectedSeats: (state) => {

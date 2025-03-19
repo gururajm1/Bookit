@@ -185,12 +185,15 @@ const Payment = () => {
 
   const handlePaymentSuccess = async (paymentResponse: any) => {
     try {
-      if (!paymentData) return;
+      if (!paymentData) {
+        console.error('No payment data found');
+        return;
+      }
 
-      console.log('Payment data:', paymentData); // Debug log
+      console.log('Payment data:', paymentData);
 
       // Update or create cinema with selected seats
-      const updateResponse = await fetch('http://localhost:5001/bookit/cinema/seats', {
+      const updateResponse = await fetch('http://localhost:5006/bookit/cinema/seats', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -202,30 +205,33 @@ const Payment = () => {
           selectedSeats: paymentData.selectedSeats.split(',').map(seat => seat.trim()),
           showDate: paymentData.showDate,
           showTime: paymentData.showTime,
-          paymentId: paymentResponse.razorpay_payment_id // Add payment reference
+          movieName: paymentData.movieName,
+          paymentId: paymentResponse.razorpay_payment_id,
+          totalAmount: paymentData.totalAmount,
+          convenienceFee: paymentData.convenienceFee,
+          ticketsAmount: paymentData.ticketsAmount
         }),
       });
 
       if (!updateResponse.ok) {
         const errorData = await updateResponse.json();
-        console.error('Server error:', errorData); // Debug log
+        console.error('Server error:', errorData);
         throw new Error(`Failed to update cinema seats: ${errorData.message || 'Unknown error'}`);
       }
 
       const result = await updateResponse.json();
-      console.log('Cinema seats updated:', result); // Debug log
+      console.log('Cinema seats updated:', result);
 
-      // Clear selected seats and payment data
+      // Clear payment data from session storage
       sessionStorage.removeItem('paymentData');
       
-      // Show success message
+      // Show success message and navigate to dashboard
       alert('Payment successful! Your tickets have been booked.');
-      
-      // Navigate to dashboard
-      navigate('/dash');
+      navigate('/dash', { replace: true }); // Use replace to prevent going back to payment page
     } catch (error) {
       console.error('Error processing payment:', error);
-      alert('Payment successful but there was an error updating seat information. Please contact support.');
+      alert('There was an error updating seat information. Please contact support.');
+      // Still navigate to dashboard but don't replace history in case user needs to try again
       navigate('/dash');
     }
   };

@@ -8,4 +8,6 @@ const cinemaController_1 = require("../controllers/cinemaController");
 const router = express_1.default.Router();
 router.post('/seats', cinemaController_1.updateOrCreateCinemaSeats);
 router.get('/verify/:name', cinemaController_1.verifyCinemaName);
+router.get('/booked-seats', cinemaController_1.getBookedSeats);
+router.get('/seats-count', cinemaController_1.getBookedSeatsCount);
 exports.default = router;

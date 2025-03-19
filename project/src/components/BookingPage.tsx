@@ -9,7 +9,8 @@ import {
   selectCinemas, 
   fetchCinemasByLocation, 
   setSelectedCinema,
-  setSelectedShowTime
+  setSelectedShowTime,
+  clearSelectedSeats
 } from '../redux/slices/movieSlice';
 import { Cinema, CinemaShowTime } from '../data/locations';
 import Header from './Header';
@@ -34,9 +35,35 @@ const BookingPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [timeFilter, setTimeFilter] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [seatCounts, setSeatCounts] = useState<Record<string, number>>({});
   
   // Generate dates for the next 7 days
   const dates = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i));
+
+  // Function to get seat availability color
+  const getAvailabilityColor = (count: number) => {
+    if (count >= 200) return 'text-red-500 border-red-500';
+    if (count >= 100) return 'text-yellow-500 border-yellow-500';
+    return 'text-green-500 border-green-500';
+  };
+
+  // Function to fetch seat counts for a cinema and showtime
+  const fetchSeatCount = async (cinema: Cinema, showTime: ShowTime) => {
+    try {
+      const formattedDate = format(selectedDate, 'dd-MM-yyyy');
+      const response = await fetch(`http://localhost:5006/bookit/cinema/seats-count?theatreName=${encodeURIComponent(cinema.name)}&date=${encodeURIComponent(formattedDate)}&showTime=${encodeURIComponent(showTime.time)}&movieName=${encodeURIComponent(selectedMovie?.title || '')}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch seat count');
+      }
+
+      const data = await response.json();
+      const key = `${cinema.name}-${showTime.time}`;
+      setSeatCounts(prev => ({ ...prev, [key]: data.count }));
+    } catch (error) {
+      console.error('Error fetching seat count:', error);
+    }
+  };
   
   useEffect(() => {
     if (selectedLocation) {
@@ -46,6 +73,17 @@ const BookingPage: React.FC = () => {
         .catch(() => setIsLoading(false));
     }
   }, [selectedLocation, dispatch]);
+
+  // Fetch seat counts whenever cinemas, date, or movie changes
+  useEffect(() => {
+    if (cinemas && selectedMovie) {
+      cinemas.forEach((cinema: Cinema) => {
+        cinema.showTimes.forEach((showTime: ShowTime) => {
+          fetchSeatCount(cinema, showTime);
+        });
+      });
+    }
+  }, [cinemas, selectedDate, selectedMovie]);
   
   // Filter cinemas based on search query and time filter
   const filteredCinemas = cinemas.filter((cinema: Cinema) => {
@@ -70,6 +108,9 @@ const BookingPage: React.FC = () => {
       return;
     }
     
+    // Clear any previously selected seats
+    dispatch(clearSelectedSeats());
+    
     dispatch(setSelectedCinema(cinema));
     dispatch(setSelectedShowTime({
       ...showTime,
@@ -78,6 +119,23 @@ const BookingPage: React.FC = () => {
     
     // Navigate to the correct route with the movie ID
     navigate(`/movie/${selectedMovie?.id}/seats`);
+  };
+
+  // Render show time button with appropriate color
+  const renderShowTimeButton = (cinema: Cinema, showTime: ShowTime) => {
+    const key = `${cinema.name}-${showTime.time}`;
+    const seatCount = seatCounts[key] || 0;
+    const colorClass = getAvailabilityColor(seatCount);
+
+    return (
+      <button
+        key={showTime.time}
+        onClick={() => handleTimeClick(cinema, showTime)}
+        className={`px-4 py-2 rounded border ${colorClass} hover:opacity-80 transition-opacity`}
+      >
+        {showTime.time}
+      </button>
+    );
   };
   
   if (!selectedMovie) {
@@ -202,62 +260,32 @@ const BookingPage: React.FC = () => {
       </div>
 
       {/* Cinema List */}
-      <div className="bg-white">
-        <div className="container mx-auto px-4 py-8">
-          {isLoading ? (
-            <div className="flex justify-center py-10">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-500"></div>
-            </div>
-          ) : filteredCinemas.length > 0 ? (
-            filteredCinemas.map((cinema: Cinema) => (
-              <div key={cinema.id} className="bg-white rounded-lg p-6 mb-4 shadow-sm border border-gray-100">
-                <div className="flex items-center justify-between mb-2">
+      <div className="container mx-auto px-4 py-6">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {filteredCinemas.map((cinema: Cinema) => (
+              <div key={cinema.name} className="bg-white rounded-lg shadow-md p-4">
+                <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-xl font-bold">{cinema.name}</h2>
-                    <p className="text-sm text-gray-500">{cinema.address}</p>
-                    <p className="text-sm text-gray-500">Price: ₹{cinema.price}</p>
+                    <h3 className="text-lg font-semibold">{cinema.name}</h3>
+                    <p className="text-sm text-gray-600">{cinema.address}</p>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-gray-400 hover:text-red-500 cursor-pointer" />
                     <span className="text-sm text-gray-600">{cinema.distance}</span>
-                    <button className="text-gray-600 hover:text-red-500">
-                      <MapPin className="w-5 h-5" />
-                    </button>
-                    <button className="text-gray-600 hover:text-red-500">
-                      <Heart className="w-5 h-5" />
-                    </button>
                   </div>
                 </div>
-
-                <div className="flex gap-4 mt-4 flex-wrap">
-                  {cinema.showTimes.map((show: CinemaShowTime, index: number) => {
-                    const buttonStyle = show.isFull ? "border-red-500 text-red-500" :
-                                      !show.isEmpty ? "border-yellow-500 text-yellow-500" :
-                                      "border-green-500 text-green-500";
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => handleTimeClick(cinema, show)}
-                        className={`px-6 py-3 border rounded text-center transition-colors ${buttonStyle}`}
-                        disabled={show.isFull}
-                      >
-                        <span className="block text-sm">{show.languages}</span>
-                        <span className="block font-bold mt-1">{show.time}</span>
-                        {show.isFull && <span className="text-xs block mt-1">FULL</span>}
-                        {show.isEmpty && <span className="text-xs block mt-1">AVAILABLE</span>}
-                        {!show.isFull && !show.isEmpty && <span className="text-xs block mt-1">FILLING</span>}
-                      </button>
-                    );
-                  })}
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {cinema.showTimes.map((showTime) => renderShowTimeButton(cinema, showTime))}
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="text-center py-10">
-              <p className="text-gray-500">No cinemas found for {selectedLocation}</p>
-              <p className="text-sm text-gray-400 mt-2">Try changing your location or search criteria</p>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

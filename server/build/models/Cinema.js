@@ -39,14 +39,25 @@ const CinemaSchema = new mongoose_1.Schema({
     address: { type: String, required: true },
     distance: { type: String, required: true },
     location: { type: String, required: true },
-    showTimes: { type: String, required: true },
     isFull: { type: Boolean, default: false },
     isEmpty: { type: Boolean, default: false },
     dates: [
         {
             date: { type: String, required: true },
             seats: { type: [String], required: true },
+            showTimes: [
+                {
+                    time: { type: String },
+                    bookedSeats: { type: [String] },
+                    movieName: { type: String, required: true }
+                },
+            ],
         },
     ],
 });
+// Add indexes for faster queries
+CinemaSchema.index({ name: 1 });
+CinemaSchema.index({ location: 1 });
+CinemaSchema.index({ 'dates.date': 1 });
+CinemaSchema.index({ 'dates.showTimes.movieName': 1 });
 exports.default = mongoose_1.default.model('Cinema', CinemaSchema);

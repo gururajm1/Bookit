@@ -5,13 +5,13 @@ export const getBookedSeats = async (req: Request, res: Response) => {
   try {
     console.log('Received request query:', req.query); // Debug log
 
-    const { theatreName, date, showTime } = req.query;
+    const { theatreName, date, showTime, movieName } = req.query;
 
-    if (!theatreName || !date || !showTime) {
-      console.error('Missing required fields:', { theatreName, date, showTime });
+    if (!theatreName || !date || !showTime || !movieName) {
+      console.error('Missing required fields:', { theatreName, date, showTime, movieName });
       return res.status(400).json({
         success: false,
-        message: 'Theatre name, date, and show time are required',
+        message: 'Theatre name, date, show time, and movie name are required',
         receivedData: req.query
       });
     }
@@ -37,7 +37,7 @@ export const getBookedSeats = async (req: Request, res: Response) => {
       });
     }
 
-    const showTimeEntry = dateEntry.showTimes?.find(st => st.time === showTime);
+    const showTimeEntry = dateEntry.showTimes?.find(st => st.time === showTime && st.movieName === movieName);
     console.log('Found showTime entry:', showTimeEntry); // Debug log
 
     console.log('Returning booked seats:', showTimeEntry?.bookedSeats || []); // Debug log
@@ -57,12 +57,12 @@ export const getBookedSeats = async (req: Request, res: Response) => {
 
 export const updateOrCreateCinemaSeats = async (req: Request, res: Response) => {
   try {
-    console.log('Received request body:', req.body); // Debug log
+    console.log('Received request body:', req.body);
 
-    const { name, address, location, selectedSeats, showDate, showTime, paymentId } = req.body;
+    const { name, address, location, selectedSeats, showDate, showTime, movieName, paymentId } = req.body;
 
-    if (!name || !address || !location || !selectedSeats || !showDate || !showTime) {
-      console.error('Missing required fields:', { name, address, location, selectedSeats, showDate, showTime });
+    if (!name || !address || !location || !selectedSeats || !showDate || !showTime || !movieName) {
+      console.error('Missing required fields:', { name, address, location, selectedSeats, showDate, showTime, movieName });
       return res.status(400).json({
         success: false,
         message: 'Missing required fields',
@@ -72,16 +72,16 @@ export const updateOrCreateCinemaSeats = async (req: Request, res: Response) => 
 
     // Try to find existing cinema by name
     let cinema = await Cinema.findOne({ name });
-    console.log('Found existing cinema:', cinema); // Debug log
+    console.log('Found existing cinema:', cinema);
 
     if (cinema) {
       // Cinema exists, check for date
       const dateIndex = cinema.dates.findIndex(d => d.date === showDate);
-      console.log('Existing date index:', dateIndex); // Debug log
-      
+      console.log('Existing date index:', dateIndex);
+
       if (dateIndex !== -1) {
         // Date exists, check for showTime
-        const showTimeIndex = cinema.dates[dateIndex].showTimes?.findIndex(st => st.time === showTime) ?? -1;
+        const showTimeIndex = cinema.dates[dateIndex].showTimes?.findIndex(st => st.time === showTime && st.movieName === movieName) ?? -1;
         
         if (showTimeIndex !== -1) {
           // ShowTime exists, update bookedSeats
@@ -95,7 +95,8 @@ export const updateOrCreateCinemaSeats = async (req: Request, res: Response) => 
           }
           cinema.dates[dateIndex].showTimes.push({
             time: showTime,
-            bookedSeats: selectedSeats
+            bookedSeats: selectedSeats,
+            movieName
           });
         }
       } else {
@@ -105,13 +106,14 @@ export const updateOrCreateCinemaSeats = async (req: Request, res: Response) => 
           seats: [],
           showTimes: [{
             time: showTime,
-            bookedSeats: selectedSeats
+            bookedSeats: selectedSeats,
+            movieName
           }]
         });
       }
 
       await cinema.save();
-      console.log('Updated cinema:', cinema); // Debug log
+      console.log('Updated cinema:', cinema);
     } else {
       // Create new cinema with seats
       cinema = await Cinema.create({
@@ -126,11 +128,12 @@ export const updateOrCreateCinemaSeats = async (req: Request, res: Response) => 
           seats: [],
           showTimes: [{
             time: showTime,
-            bookedSeats: selectedSeats
+            bookedSeats: selectedSeats,
+            movieName
           }]
         }]
       });
-      console.log('Created new cinema:', cinema); // Debug log
+      console.log('Created new cinema:', cinema);
     }
 
     res.status(200).json({
@@ -163,6 +166,57 @@ export const verifyCinemaName = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in verifyCinemaName:', error);
+    res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : 'Internal server error',
+      error: error instanceof Error ? error.stack : undefined
+    });
+  }
+};
+
+export const getBookedSeatsCount = async (req: Request, res: Response) => {
+  try {
+    console.log('Received request query:', req.query);
+
+    const { theatreName, date, showTime, movieName } = req.query;
+
+    if (!theatreName || !date || !showTime || !movieName) {
+      console.error('Missing required fields:', { theatreName, date, showTime, movieName });
+      return res.status(400).json({
+        success: false,
+        message: 'Theatre name, date, show time, and movie name are required',
+        receivedData: req.query
+      });
+    }
+
+    const cinema = await Cinema.findOne({ name: theatreName });
+    console.log('Found cinema:', cinema);
+
+    if (!cinema) {
+      return res.status(200).json({
+        success: true,
+        count: 0
+      });
+    }
+
+    const dateEntry = cinema.dates.find(d => d.date === date);
+    if (!dateEntry?.showTimes) {
+      return res.status(200).json({
+        success: true,
+        count: 0
+      });
+    }
+
+    const showTimeEntry = dateEntry.showTimes.find(
+      st => st.time === showTime && st.movieName === movieName
+    );
+
+    return res.status(200).json({
+      success: true,
+      count: showTimeEntry?.bookedSeats?.length || 0
+    });
+  } catch (error) {
+    console.error('Error in getBookedSeatsCount:', error);
     res.status(500).json({
       success: false,
       message: error instanceof Error ? error.message : 'Internal server error',

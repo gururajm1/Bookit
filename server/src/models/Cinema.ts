@@ -1,12 +1,15 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+interface IShowTime {
+  time: string;
+  bookedSeats: string[];
+  movieName: string;
+}
+
 interface ISeatAvailability {
   date: string;
   seats: string[];
-  showTimes?: Array<{
-    time: string;
-    bookedSeats: string[];
-  }>;
+  showTimes?: IShowTime[];
 }
 
 export interface ICinema extends Document {
@@ -34,10 +37,17 @@ const CinemaSchema: Schema = new Schema({
         {
           time: { type: String },
           bookedSeats: { type: [String] },
+          movieName: { type: String, required: true }
         },
       ],
     },
   ],
 });
+
+// Add indexes for faster queries
+CinemaSchema.index({ name: 1 });
+CinemaSchema.index({ location: 1 });
+CinemaSchema.index({ 'dates.date': 1 });
+CinemaSchema.index({ 'dates.showTimes.movieName': 1 });
 
 export default mongoose.model<ICinema>('Cinema', CinemaSchema);
