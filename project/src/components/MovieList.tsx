@@ -351,10 +351,8 @@ const MovieList = () => {
         </div>
 
         {/* ChatBot with fixed positioning and improved styling */}
-        <div className="fixed bottom-6 right-6 z-50">
-          <div className="chatbot-container chatbot-shadow rounded-full">
-            <ChatBot />
-          </div>
+        <div className="fixed bottom-[25px] right-[25px] z-50">
+          <ChatBot />
         </div>
       </div>
     </div>

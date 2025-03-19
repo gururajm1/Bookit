@@ -87,25 +87,9 @@ const Header = () => {
                     <Home size={18} />
                     <span>Home</span>
                   </button>
-                  <Link to="/showtimings" className="flex items-center space-x-1 text-sm hover:text-red-600">
-                    <Clock size={18} />
-                    <span>Showtimings</span>
-                  </Link>
                   <Link to="/booked-tickets" className="flex items-center space-x-1 text-sm hover:text-red-600">
                     <Film size={18} />
                     <span>Booked Tickets</span>
-                  </Link>
-                  <Link to="/offers" className="flex items-center space-x-1 text-sm hover:text-red-600">
-                    <Gift size={18} />
-                    <span>Offers</span>
-                  </Link>
-                  <Link to="/investor" className="flex items-center space-x-1 text-sm hover:text-red-600">
-                    <Users size={18} />
-                    <span>Investor Section</span>
-                  </Link>
-                  <Link to="/passport" className="flex items-center space-x-1 text-sm hover:text-red-600">
-                    <Passport size={18} />
-                    <span>Passport</span>
                   </Link>
                 </nav>
               </div>
