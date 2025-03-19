@@ -353,7 +353,7 @@ const Dashboard: React.FC = () => {
                     </div>
                     <div>
                       <h4 className="font-bold text-gray-800">{movie.name}</h4>
-                      <p className="text-xs text-gray-500">Movie ID: {index + 1002}</p>
+                      <p className="text-xs text-gray-500">Movie ID: {index + 1004}</p>
                     </div>
                   </div>
                   
@@ -410,11 +410,6 @@ const Dashboard: React.FC = () => {
           <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold text-gray-800">All Bookings</h3>
-              <div className="flex items-center space-x-4">
-                <button className="bg-red-600 text-white rounded-md py-2 px-4 flex items-center space-x-2 hover:bg-red-700 transition-colors text-sm">
-                  <span>Generate Report</span>
-                </button>
-              </div>
             </div>
             
             {/* Debug info - will be removed in production */}

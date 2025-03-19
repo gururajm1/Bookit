@@ -13,6 +13,8 @@ import Signup from './Auth/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
 import BookedTickets from './components/BookedTickets';
 import Dashboard from './components/dashboard';
+import HomePage from './pages/HomePage';
+import { isAuthenticated } from './services/authService';
 
 /* Admin Protected Route Component - Uncomment when implementing admin features
 const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -27,6 +29,17 @@ const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 */
 
+// This route is for unauthenticated users only
+// If user is authenticated, redirect to the dashboard
+const PublicOnlyRoute = ({ children }: { children: React.ReactNode }) => {
+  const isAuth = isAuthenticated();
+  
+  if (isAuth) {
+    return <Navigate to="/dash" />;
+  }
+  return <>{children}</>;
+};
+
 function App() {
   return (
     <Provider store={store}>
@@ -35,12 +48,24 @@ function App() {
           <Header />
           <main className="relative">
             <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Navigate to="/login" replace />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
+              {/* Public Routes - accessible by both authenticated and unauthenticated users */}
+              <Route path="/" element={
+                <PublicOnlyRoute>
+                  <HomePage />
+                </PublicOnlyRoute>
+              } />
+              <Route path="/login" element={
+                <PublicOnlyRoute>
+                  <Login />
+                </PublicOnlyRoute>
+              } />
+              <Route path="/signup" element={
+                <PublicOnlyRoute>
+                  <Signup />
+                </PublicOnlyRoute>
+              } />
               
-              {/* Protected Routes */}
+              {/* Protected Routes - only accessible if authenticated */}
               <Route path="/dash" element={
                 <ProtectedRoute>
                   <MovieList />
@@ -71,12 +96,20 @@ function App() {
                   <Dashboard />
                 </ProtectedRoute>
               } />
+              
               {/* Admin Routes - Commented out until admin components are implemented */}
               {/* <Route path="/admin/*" element={
                 <AdminProtectedRoute>
                   <AdminDashboard />
                 </AdminProtectedRoute>
               } /> */}
+              
+              {/* Catch-all route - redirect unauthenticated users to HomePage, authenticated to Dashboard */}
+              <Route path="*" element={
+                isAuthenticated() ? 
+                <Navigate to="/dash" replace /> : 
+                <Navigate to="/" replace />
+              } />
             </Routes>
           </main>
         </div>

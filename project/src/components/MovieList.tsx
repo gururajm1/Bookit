@@ -75,7 +75,7 @@ const MovieList = () => {
     const fetchAllMovies = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('http://localhost:1002/bookit/movies');
+        const response = await fetch('http://localhost:1004/bookit/movies');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const data = await response.json();

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:1002/bookit/admin';
+const API_URL = 'http://localhost:1004/bookit/admin';
 
 export interface DashboardData {
   totalUsers: number;
