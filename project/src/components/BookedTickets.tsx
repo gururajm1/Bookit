@@ -2,6 +2,7 @@ import { FC, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import authService from '../services/authService';
+import { format, parse } from 'date-fns';
 
 interface BookedTicket {
   movieName: string;
@@ -10,7 +11,7 @@ interface BookedTicket {
   language: string;
   theatreName: string;
   theatreLocation: string;
-  showDate: string;
+  showDate: string;  // Format: "DD-MM-YYYY"
   showTime: string;
   totalAmount: number;
   selectedSeats: string[];
@@ -48,7 +49,13 @@ const BookedTickets: FC = () => {
 
         const data = await response.json();
         if (data.success) {
-          setBookedTickets(data.tickets);
+          // Sort tickets by booking date in descending order (newest first)
+          const sortedTickets = data.tickets.sort((a: BookedTicket, b: BookedTicket) => {
+            const dateA = new Date(a.bookingDate).getTime();
+            const dateB = new Date(b.bookingDate).getTime();
+            return dateB - dateA;
+          });
+          setBookedTickets(sortedTickets);
         } else {
           throw new Error(data.message || 'Failed to fetch tickets');
         }
@@ -62,6 +69,17 @@ const BookedTickets: FC = () => {
 
     fetchBookedTickets();
   }, [navigate]);
+
+  const formatShowDate = (dateStr: string) => {
+    try {
+      // Parse the date string from "DD-MM-YYYY" format
+      const parsedDate = parse(dateStr, 'dd-MM-yyyy', new Date());
+      return format(parsedDate, 'MMM d, yyyy');
+    } catch (error) {
+      console.error('Error parsing date:', error);
+      return dateStr; // Return original string if parsing fails
+    }
+  };
 
   if (loading) {
     return (
@@ -99,7 +117,7 @@ const BookedTickets: FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pt-20">
         <div className="flex items-center mb-8">
           <button 
             className="p-2 hover:bg-white hover:shadow-md rounded-full transition-all duration-200" 
@@ -137,6 +155,15 @@ const BookedTickets: FC = () => {
                   {/* Movie Info Section */}
                   <div className="bg-red-500 p-6 md:w-1/4 flex flex-col justify-center">
                     <h3 className="text-xl font-bold text-white truncate">{ticket.movieName}</h3>
+                    <p className="text-red-100 mt-2 text-xs">
+                      Booked on: {new Date(ticket.bookingDate).toLocaleDateString('en-US', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
                   </div>
 
                   {/* Theatre & Show Details */}
@@ -150,11 +177,7 @@ const BookedTickets: FC = () => {
                       <div className="text-right">
                         <p className="text-sm text-gray-500">Show Time</p>
                         <p className="font-medium text-gray-800">
-                          {new Date(ticket.showDate).toLocaleDateString('en-US', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                          })}
+                          {formatShowDate(ticket.showDate)}
                         </p>
                         <p className="text-sm text-gray-600">{ticket.showTime}</p>
                       </div>
