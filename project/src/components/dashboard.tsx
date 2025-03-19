@@ -2,11 +2,38 @@ import React, { useState, useEffect } from 'react';
 import adminService, { DashboardData } from '../services/adminService';
 import { Users, UserCheck, Ticket, Calendar, Film, MapPin, Search, Download, Clock, CreditCard, Eye, ChevronDown, ChevronUp, Theater, CalendarDays } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
+// Interface based on Cinema model schema
+interface IShowTime {
+  time: string;
+  bookedSeats: string[];
+  movieName: string;
+}
+
+interface ISeatAvailability {
+  date: string;
+  seats: string[];
+  showTimes?: IShowTime[];
+}
+
+interface ICinema {
+  _id: string;
+  name: string;
+  address: string;
+  distance: string;
+  location: string;
+  isFull: boolean;
+  isEmpty: boolean;
+  dates: ISeatAvailability[];
+}
+
+// Adapted for dashboard view
 interface TheaterSeatData {
   theaterId: string;
   theaterName: string;
   location: string;
+  address: string;
   shows: TheaterShow[];
 }
 
@@ -25,88 +52,8 @@ const Dashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'movies' | 'theaters' | 'bookings' | 'seats'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'movies' | 'theaters' | 'bookings'>('overview');
   const [expandedTheaters, setExpandedTheaters] = useState<string[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  
-  // Mock theater seat data (replace with actual API call)
-  const [theaterSeatsData, setTheaterSeatsData] = useState<TheaterSeatData[]>([
-    {
-      theaterId: "1",
-      theaterName: "PVR Cinemas",
-      location: "Delhi-NCR",
-      shows: [
-        {
-          showId: "s1",
-          movieName: "Inception",
-          date: "2023-11-21",
-          time: "18:00",
-          totalSeats: 120,
-          bookedSeats: 87,
-          availableSeats: 33
-        },
-        {
-          showId: "s2",
-          movieName: "Interstellar",
-          date: "2023-11-21",
-          time: "21:30",
-          totalSeats: 120,
-          bookedSeats: 45,
-          availableSeats: 75
-        }
-      ]
-    },
-    {
-      theaterId: "2",
-      theaterName: "INOX",
-      location: "Mumbai",
-      shows: [
-        {
-          showId: "s3",
-          movieName: "Dune",
-          date: "2023-11-21",
-          time: "15:00",
-          totalSeats: 150,
-          bookedSeats: 102,
-          availableSeats: 48
-        },
-        {
-          showId: "s4",
-          movieName: "No Time To Die",
-          date: "2023-11-21",
-          time: "19:15",
-          totalSeats: 150,
-          bookedSeats: 130,
-          availableSeats: 20
-        }
-      ]
-    },
-    {
-      theaterId: "3",
-      theaterName: "Cinepolis",
-      location: "Bangalore",
-      shows: [
-        {
-          showId: "s5",
-          movieName: "Black Widow",
-          date: "2023-11-21",
-          time: "14:30",
-          totalSeats: 100,
-          bookedSeats: 62,
-          availableSeats: 38
-        },
-        {
-          showId: "s6",
-          movieName: "Shang-Chi",
-          date: "2023-11-21",
-          time: "20:00",
-          totalSeats: 100,
-          bookedSeats: 94,
-          availableSeats: 6
-        }
-      ]
-    }
-  ]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -271,16 +218,6 @@ const Dashboard: React.FC = () => {
             >
               Bookings
             </button>
-            <button
-              onClick={() => setActiveTab('seats')}
-              className={`px-6 py-3 text-sm font-medium whitespace-nowrap ${
-                activeTab === 'seats'
-                  ? 'border-b-2 border-red-500 text-red-600'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Seat Availability
-            </button>
           </nav>
         </div>
 
@@ -395,47 +332,7 @@ const Dashboard: React.FC = () => {
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Recent Transactions */}
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">Recent Transactions</h3>
-                <button 
-                  onClick={() => setActiveTab('bookings')}
-                  className="text-sm text-red-600 hover:text-red-700"
-                >
-                  View All
-                </button>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Movie</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {dashboardData.bookingSummary.recentBookings.slice(0, 5).map((booking, index) => (
-                        <tr key={index} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{String(index + 1).padStart(2, '0')}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{booking.movieName}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{booking.userName}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(booking.showDate)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{formatCurrency(booking.totalAmount)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+            </div>            
           </>
         )}
 
@@ -529,15 +426,6 @@ const Dashboard: React.FC = () => {
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold text-gray-800">All Bookings</h3>
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">Date:</span>
-                  <input 
-                    type="date" 
-                    className="border border-gray-200 rounded-md text-sm py-1 px-2"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                  />
-                </div>
                 <button className="bg-red-600 text-white rounded-md py-2 px-4 flex items-center space-x-2 hover:bg-red-700 transition-colors text-sm">
                   <span>Generate Report</span>
                 </button>
@@ -550,12 +438,8 @@ const Dashboard: React.FC = () => {
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Movie</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Theater</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seats</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                   </tr>
                 </thead>
@@ -574,9 +458,6 @@ const Dashboard: React.FC = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{booking.movieName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{booking.theatreName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(booking.showDate)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {/* Mock time data */}
                         {['14:30', '18:00', '21:30'][index % 3]}
@@ -585,7 +466,6 @@ const Dashboard: React.FC = () => {
                         {/* Mock seat data */}
                         {index % 2 === 0 ? 'A1, A2, A3' : 'B4, B5'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{formatCurrency(booking.totalAmount)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Completed</span>
                       </td>
@@ -604,105 +484,6 @@ const Dashboard: React.FC = () => {
                 <button className="px-3 py-1 bg-red-600 text-white rounded-md text-sm">1</button>
                 <button className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-500">Next</button>
               </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'seats' && (
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold text-gray-800">Seat Availability</h3>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">Date:</span>
-                  <input 
-                    type="date" 
-                    className="border border-gray-200 rounded-md text-sm py-1 px-2"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">City:</span>
-                  <select className="border border-gray-200 rounded-md text-sm py-1 px-2">
-                    <option>All Cities</option>
-                    <option>Delhi-NCR</option>
-                    <option>Mumbai</option>
-                    <option>Bangalore</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              {theaterSeatsData.map((theater) => (
-                <div key={theater.theaterId} className="border border-gray-200 rounded-xl overflow-hidden">
-                  <div 
-                    className="bg-gray-50 p-4 flex justify-between items-center cursor-pointer"
-                    onClick={() => toggleTheaterExpand(theater.theaterId)}
-                  >
-                    <div className="flex items-center">
-                      <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center text-red-600 mr-3">
-                        <MapPin size={20} />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-800">{theater.theaterName}</h4>
-                        <p className="text-xs text-gray-500">{theater.location}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-sm text-gray-600">
-                        {theater.shows.length} Shows Today
-                      </div>
-                      {expandedTheaters.includes(theater.theaterId) ? 
-                        <ChevronUp size={20} className="text-gray-500" /> : 
-                        <ChevronDown size={20} className="text-gray-500" />
-                      }
-                    </div>
-                  </div>
-                  
-                  {expandedTheaters.includes(theater.theaterId) && (
-                    <div className="p-4">
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Movie</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Seats</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booked</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacity</th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {theater.shows.map((show) => (
-                              <tr key={show.showId} className="hover:bg-gray-50">
-                                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{show.movieName}</td>
-                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{formatTime(show.time)}</td>
-                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{show.totalSeats}</td>
-                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{show.bookedSeats}</td>
-                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{show.availableSeats}</td>
-                                <td className="px-4 py-4 whitespace-nowrap">
-                                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div 
-                                      className="bg-red-600 h-2.5 rounded-full" 
-                                      style={{ width: `${(show.bookedSeats / show.totalSeats) * 100}%` }}
-                                    ></div>
-                                  </div>
-                                  <div className="text-xs text-gray-500 mt-1 text-right">
-                                    {Math.round((show.bookedSeats / show.totalSeats) * 100)}% Full
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
             </div>
           </div>
         )}

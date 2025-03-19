@@ -38,7 +38,7 @@ app.use('/api/auth', authRoutes);
 app.use('/bookit', movieRoutes);
 app.use('/bookit/cinema', cinemaRoutes);
 app.use('/bookit/user', userRoutes);
-app.use('/admin', adminRoutes);
+app.use('/bookit/admin', adminRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {

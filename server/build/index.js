@@ -13,6 +13,7 @@ const openai_1 = require("openai");
 const movieRoutes_1 = __importDefault(require("./routes/movieRoutes"));
 const cinemaRoutes_1 = __importDefault(require("./routes/cinemaRoutes"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
+const adminRoutes_1 = __importDefault(require("./routes/adminRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 // Initialize OpenAI
@@ -36,6 +37,7 @@ app.use('/api/auth', authRoutes_1.default);
 app.use('/bookit', movieRoutes_1.default);
 app.use('/bookit/cinema', cinemaRoutes_1.default);
 app.use('/bookit/user', userRoutes_1.default);
+app.use('/bookit/admin', adminRoutes_1.default);
 // Health check route
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
