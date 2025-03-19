@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import authRoutes from './routes/authRoutes';
 import movieRoutes from './routes/movieRoutes';
 import cinemaRoutes from './routes/cinemaRoutes';
+import userRoutes from './routes/userRoutes';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/bookit', movieRoutes);
 app.use('/bookit/cinema', cinemaRoutes);
+app.use('/bookit/user', userRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
@@ -52,5 +54,5 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 const PORT = process.env.PORT || 5006;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

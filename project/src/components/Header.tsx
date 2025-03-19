@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Home, Clock, Film, Gift, Users, Import as Passport, Search, ChevronDown, MapPin } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedLocation, selectLocation } from '../redux/slices/movieSlice';
+import { Link } from 'react-router-dom';
 
 const INDIAN_CITIES = [
   'Delhi-NCR', 'Mumbai', 'Chennai', 'Bangalore', 'Kolkata', 
@@ -37,32 +38,32 @@ const Header = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
-              <a href="/" className="text-red-500 font-bold text-2xl">Bookit</a>
+              <Link to="/" className="text-red-500 font-bold text-2xl">Bookit</Link>
               <nav className="hidden md:flex items-center space-x-6">
-                <a href="/" className="flex items-center space-x-1 text-sm hover:text-red-600">
+                <Link to="/" className="flex items-center space-x-1 text-sm hover:text-red-600">
                   <Home size={18} />
                   <span>Home</span>
-                </a>
-                <a href="/showtimings" className="flex items-center space-x-1 text-sm hover:text-red-600">
+                </Link>
+                <Link to="/showtimings" className="flex items-center space-x-1 text-sm hover:text-red-600">
                   <Clock size={18} />
                   <span>Showtimings</span>
-                </a>
-                <a href="/booked" className="flex items-center space-x-1 text-sm hover:text-red-600">
+                </Link>
+                <Link to="/booked-tickets" className="flex items-center space-x-1 text-sm hover:text-red-600">
                   <Film size={18} />
                   <span>Booked Tickets</span>
-                </a>
-                <a href="/offers" className="flex items-center space-x-1 text-sm hover:text-red-600">
+                </Link>
+                <Link to="/offers" className="flex items-center space-x-1 text-sm hover:text-red-600">
                   <Gift size={18} />
                   <span>Offers</span>
-                </a>
-                <a href="/investor" className="flex items-center space-x-1 text-sm hover:text-red-600">
+                </Link>
+                <Link to="/investor" className="flex items-center space-x-1 text-sm hover:text-red-600">
                   <Users size={18} />
                   <span>Investor Section</span>
-                </a>
-                <a href="/passport" className="flex items-center space-x-1 text-sm hover:text-red-600">
+                </Link>
+                <Link to="/passport" className="flex items-center space-x-1 text-sm hover:text-red-600">
                   <Passport size={18} />
                   <span>Passport</span>
-                </a>
+                </Link>
               </nav>
             </div>
             

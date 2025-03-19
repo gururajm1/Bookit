@@ -1,6 +1,20 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+interface BookedTicket {
+  movieName: string;
+  movieCertification: string;
+  genres: string;
+  language: string;
+  theatreName: string;
+  theatreLocation: string;
+  showDate: string;
+  showTime: string;
+  totalAmount: number;
+  selectedSeats: string[];
+  bookingDate: Date;
+}
+
 export interface IUser extends Document {
   email: string;
   password: string;
@@ -9,6 +23,7 @@ export interface IUser extends Document {
   isActive: boolean;
   lastLogin?: Date;
   isAdmin: boolean;
+  seatsBooked: BookedTicket[];
   comparePassword(password: string): Promise<boolean>;
 }
 
@@ -47,7 +62,23 @@ const userSchema = new Schema({
   isAdmin: {
     type: Boolean,
     default: false
-  }
+  },
+  seatsBooked: [{
+    movieName: String,
+    movieCertification: String,
+    genres: String,
+    language: String,
+    theatreName: String,
+    theatreLocation: String,
+    showDate: String,
+    showTime: String,
+    totalAmount: Number,
+    selectedSeats: [String],
+    bookingDate: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true
 });

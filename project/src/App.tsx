@@ -11,6 +11,7 @@ import Payment from './components/Payment';
 import Login from './Auth/Login';
 import Signup from './Auth/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
+import BookedTickets from './components/BookedTickets';
 
 /* Admin Protected Route Component - Uncomment when implementing admin features
 const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -56,6 +57,11 @@ function App() {
             <Route path="/payment" element={
               <ProtectedRoute>
                 <Payment />
+              </ProtectedRoute>
+            } />
+            <Route path="/booked-tickets" element={
+              <ProtectedRoute>
+                <BookedTickets />
               </ProtectedRoute>
             } />
 
