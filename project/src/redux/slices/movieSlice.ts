@@ -64,7 +64,7 @@ const initialState: MovieState = {
 };
 
 // Cache validation time (15 minutes in milliseconds)
-const CACHE_REVALIDATION_TIME = 15 * 60 * 1001;
+const CACHE_REVALIDATION_TIME = 15 * 60 * 1002;
 
 // Async thunk for fetching movies with cache
 export const fetchMoviesWithCache = createAsyncThunk(

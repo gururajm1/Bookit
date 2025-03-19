@@ -161,7 +161,7 @@ app.use((err, req, res, next) => {
         message: 'Something went wrong!'
     });
 });
-const PORT = process.env.PORT || 1001;
+const PORT = process.env.PORT || 1002;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

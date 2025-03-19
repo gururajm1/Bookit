@@ -51,7 +51,7 @@ const SeatSelection = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:1001/bookit/cinema/booked-seats?theatreName=${encodeURIComponent(selectedCinema.name)}&date=${encodeURIComponent(selectedShowTime.date)}&showTime=${encodeURIComponent(selectedShowTime.time)}&movieName=${encodeURIComponent(selectedMovie.title)}`
+          `http://localhost:1002/bookit/cinema/booked-seats?theatreName=${encodeURIComponent(selectedCinema.name)}&date=${encodeURIComponent(selectedShowTime.date)}&showTime=${encodeURIComponent(selectedShowTime.time)}&movieName=${encodeURIComponent(selectedMovie.title)}`
         );
 
         if (!response.ok) {

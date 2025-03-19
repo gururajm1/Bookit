@@ -78,7 +78,7 @@ const calculateBookingSummary = (users) => {
             summary.bookingsByDate[bookingDate].count += 1;
             summary.bookingsByDate[bookingDate].revenue += booking.totalAmount || 0;
             // Add to recent bookings (with user info)
-            summary.recentBookings.push(Object.assign(Object.assign({}, booking), { userEmail: user.email, userName: `${user.firstName} ${user.lastName}` }));
+            summary.recentBookings.push(Object.assign(Object.assign({}, booking), { userEmail: user.email, userName: `${user.firstName} ${user.lastName}`, showTime: booking.showTime || 'N/A', selectedSeats: booking.selectedSeats || [], showDate: booking.showDate || 'N/A' }));
         });
     });
     // Sort recent bookings by date (newest first) and limit to 10

@@ -75,7 +75,7 @@ const MovieList = () => {
     const fetchAllMovies = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('http://localhost:1001/bookit/movies');
+        const response = await fetch('http://localhost:1002/bookit/movies');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const data = await response.json();
@@ -289,7 +289,7 @@ const MovieList = () => {
           ref={containerRef}
           className="relative h-[calc(100vh-80px)] overflow-y-auto overflow-x-hidden hide-scrollbar"
           style={{
-            perspective: '1000px',
+            perspective: '1001px',
             backfaceVisibility: 'hidden',
             transform: 'translate3d(0,0,0)',
             willChange: 'transform',

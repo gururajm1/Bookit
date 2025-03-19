@@ -353,7 +353,7 @@ const Dashboard: React.FC = () => {
                     </div>
                     <div>
                       <h4 className="font-bold text-gray-800">{movie.name}</h4>
-                      <p className="text-xs text-gray-500">Movie ID: {index + 1001}</p>
+                      <p className="text-xs text-gray-500">Movie ID: {index + 1002}</p>
                     </div>
                   </div>
                   
@@ -434,7 +434,7 @@ const Dashboard: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {dashboardData.bookingSummary.recentBookings.map((booking, index) => (
                     <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">BK{String(index + 10001)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">BK{String(index + 10011)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 mr-3">

@@ -51,7 +51,7 @@ const BookingPage: React.FC = () => {
   const fetchSeatCount = async (cinema: Cinema, showTime: ShowTime) => {
     try {
       const formattedDate = format(selectedDate, 'dd-MM-yyyy');
-      const response = await fetch(`http://localhost:1001/bookit/cinema/seats-count?theatreName=${encodeURIComponent(cinema.name)}&date=${encodeURIComponent(formattedDate)}&showTime=${encodeURIComponent(showTime.time)}&movieName=${encodeURIComponent(selectedMovie?.title || '')}`);
+      const response = await fetch(`http://localhost:1002/bookit/cinema/seats-count?theatreName=${encodeURIComponent(cinema.name)}&date=${encodeURIComponent(formattedDate)}&showTime=${encodeURIComponent(showTime.time)}&movieName=${encodeURIComponent(selectedMovie?.title || '')}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch seat count');
