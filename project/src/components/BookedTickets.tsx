@@ -137,8 +137,6 @@ const BookedTickets: FC = () => {
                   {/* Movie Info Section */}
                   <div className="bg-red-500 p-6 md:w-1/4 flex flex-col justify-center">
                     <h3 className="text-xl font-bold text-white truncate">{ticket.movieName}</h3>
-                    <p className="text-red-100 mt-1">{ticket.movieCertification} • {ticket.language}</p>
-                    <p className="text-red-100 mt-2 text-sm">{ticket.genres}</p>
                   </div>
 
                   {/* Theatre & Show Details */}
@@ -171,7 +169,7 @@ const BookedTickets: FC = () => {
                         {ticket.selectedSeats.map((seat, seatIndex) => (
                           <span 
                             key={seatIndex}
-                            className="px-2 py-1 text-sm bg-red-50 text-red-600 rounded-md"
+                            className="px-2 py-1 text-sm bg-green-50 text-green-600 border border-green-200 rounded-md font-medium"
                           >
                             {seat}
                           </span>

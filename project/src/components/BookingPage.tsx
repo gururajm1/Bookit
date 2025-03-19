@@ -144,12 +144,9 @@ const BookingPage: React.FC = () => {
   
   return (
     <div className="min-h-screen bg-white">
-      {/* Include Header Component */}
-      <Header />
-      
       {/* Movie Header */}
       <div className="bg-gradient-to-b from-gray-100 to-white">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-6 pt-20">
           <div className="flex items-center text-gray-800 gap-4">
             <button className="hover:text-red-500" onClick={() => navigate('/dash')}>
               <ChevronLeft className="w-6 h-6" />
@@ -169,7 +166,7 @@ const BookingPage: React.FC = () => {
       </div>
 
       {/* Location Display */}
-      <div className="bg-gray-100 border-b border-gray-200">
+      <div className="bg-gray-100 border-y border-gray-200">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

@@ -2,8 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { Home, Clock, Film, Gift, Users, Import as Passport, Search, ChevronDown, MapPin } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedLocation, selectLocation } from '../redux/slices/movieSlice';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
+import { isAuthenticated } from '../services/authService';
 
 // Sample movie data
 const MOVIES = [
@@ -22,6 +23,7 @@ const INDIAN_CITIES = [
 
 const Header = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const reduxLocation = useSelector(selectLocation);
   const location = useLocation();
   
@@ -59,6 +61,15 @@ const Header = () => {
     window.dispatchEvent(cityEvent);
   };
 
+  const handleHomeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isAuthenticated()) {
+      navigate('/dash');
+    } else {
+      navigate('/');
+    }
+  };
+
   // Routes where header should be shown
   const showHeaderRoutes = ['/dash', '/movie', '/booked-tickets', '/showtimings', '/offers', '/investor', '/passport'];
   const shouldShowHeader = showHeaderRoutes.some(route => location.pathname.startsWith(route));
@@ -72,10 +83,10 @@ const Header = () => {
               <div className="flex items-center space-x-8">
                 <Link to="/" className="text-red-500 font-bold text-2xl">Bookit</Link>
                 <nav className="hidden md:flex items-center space-x-6">
-                  <Link to="/" className="flex items-center space-x-1 text-sm hover:text-red-600">
+                  <button onClick={handleHomeClick} className="flex items-center space-x-1 text-sm hover:text-red-600">
                     <Home size={18} />
                     <span>Home</span>
-                  </Link>
+                  </button>
                   <Link to="/showtimings" className="flex items-center space-x-1 text-sm hover:text-red-600">
                     <Clock size={18} />
                     <span>Showtimings</span>
