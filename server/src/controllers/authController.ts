@@ -4,7 +4,7 @@ import { User, IUser } from '../models/User';
 
 const generateToken = (user: IUser) => {
   return jwt.sign(
-    { id: user._id, email: user.email },
+    { id: user._id, email: user.email, isAdmin: user.isAdmin },
     process.env.JWT_SECRET!,
     { expiresIn: '24h' }
   );
@@ -41,7 +41,8 @@ export const register = async (req: Request, res: Response) => {
         id: user._id,
         email: user.email,
         firstName: user.firstName,
-        lastName: user.lastName
+        lastName: user.lastName,
+        isAdmin: user.isAdmin
       }
     });
   } catch (error: any) {
@@ -88,7 +89,8 @@ export const login = async (req: Request, res: Response) => {
         id: user._id,
         email: user.email,
         firstName: user.firstName,
-        lastName: user.lastName
+        lastName: user.lastName,
+        isAdmin: user.isAdmin
       }
     });
   } catch (error: any) {

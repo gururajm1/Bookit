@@ -71,7 +71,10 @@ const BookingPage: React.FC = () => {
     }
     
     dispatch(setSelectedCinema(cinema));
-    dispatch(setSelectedShowTime(showTime));
+    dispatch(setSelectedShowTime({
+      ...showTime,
+      date: format(selectedDate, 'dd-MM-yyyy')
+    }));
     
     // Navigate to the correct route with the movie ID
     navigate(`/movie/${selectedMovie?.id}/seats`);

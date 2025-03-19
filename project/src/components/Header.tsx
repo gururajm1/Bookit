@@ -47,9 +47,9 @@ const Header = () => {
                   <Clock size={18} />
                   <span>Showtimings</span>
                 </a>
-                <a href="/cinemas" className="flex items-center space-x-1 text-sm hover:text-red-600">
+                <a href="/booked" className="flex items-center space-x-1 text-sm hover:text-red-600">
                   <Film size={18} />
-                  <span>Cinemas</span>
+                  <span>Booked Tickets</span>
                 </a>
                 <a href="/offers" className="flex items-center space-x-1 text-sm hover:text-red-600">
                   <Gift size={18} />

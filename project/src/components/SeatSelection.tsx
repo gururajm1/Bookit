@@ -32,11 +32,39 @@ const SeatSelection = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [ticketsAmount, setTicketsAmount] = useState(0);
   const [convenienceFee, setConvenienceFee] = useState(0);
+  const [bookedSeats, setBookedSeats] = useState<string[]>([]);
 
   // Define rows for the theater
   const rows = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'
   ];
+
+  // Fetch booked seats from the server
+  useEffect(() => {
+    const fetchBookedSeats = async () => {
+      if (!selectedCinema?.name || !selectedShowTime?.date || !selectedShowTime?.time) return;
+
+      try {
+        const response = await fetch(
+          `http://localhost:5001/bookit/cinema/booked-seats?theatreName=${encodeURIComponent(selectedCinema.name)}&date=${encodeURIComponent(selectedShowTime.date)}&showTime=${encodeURIComponent(selectedShowTime.time)}`
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch booked seats');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setBookedSeats(data.bookedSeats || []);
+        }
+      } catch (error) {
+        console.error('Error fetching booked seats:', error);
+        setBookedSeats([]);
+      }
+    };
+
+    fetchBookedSeats();
+  }, [selectedCinema?.name, selectedShowTime?.date, selectedShowTime?.time]);
   
   // Generate all seats with unique numbers from 1 to 200
   const allSeats = useMemo(() => {
@@ -46,11 +74,12 @@ const SeatSelection = () => {
     for (const row of rows) {
       for (let i = 1; i <= 15; i++) {
         if (seatNumber <= 200) {
+          const seatId = `${row}${i}`;
           seats.push({
             id: seatNumber,
             row,
             number: i,
-            status: selectedCinema?.seatsBooked?.includes(seatNumber) ? 'booked' : 'available'
+            status: bookedSeats.includes(seatId) ? 'booked' : 'available'
           });
           seatNumber++;
         }
@@ -58,7 +87,7 @@ const SeatSelection = () => {
     }
     
     return seats;
-  }, [selectedCinema, rows]);
+  }, [rows, bookedSeats]);
   
   // Get seats for a specific row
   const getSeatsForRow = (row: string): Seat[] => {

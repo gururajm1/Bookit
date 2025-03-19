@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = 'http://localhost:5001/api/auth';
 
 export interface LoginCredentials {
   email: string;
@@ -23,6 +23,7 @@ export interface AuthResponse {
     email: string;
     firstName: string;
     lastName: string;
+    isAdmin: boolean;
   };
 }
 
@@ -32,6 +33,7 @@ class AuthService {
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('isAdmin', response.data.user.isAdmin.toString());
     }
     return response.data;
   }
@@ -47,6 +49,7 @@ class AuthService {
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('isAdmin', response.data.user.isAdmin.toString());
     }
     return response.data;
   }
@@ -54,6 +57,7 @@ class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('isAdmin');
   }
 
   getCurrentUser() {
@@ -69,6 +73,11 @@ class AuthService {
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
+  
+  isAdmin(): boolean {
+    const isAdmin = localStorage.getItem('isAdmin');
+    return isAdmin === 'true';
+  }
 }
 
 const authService = new AuthService();
@@ -81,12 +90,17 @@ export const isAuthenticated = () => {
   return !!token;
 };
 
+export const isAdmin = () => {
+  return localStorage.getItem('isAdmin') === 'true';
+};
+
 export const login = async (credentials: { email: string; password: string }) => {
   // Implement login logic here
   const response = await authService.login(credentials);
   if (response.token) {
     localStorage.setItem('token', response.token);
     localStorage.setItem('user', JSON.stringify(response.user));
+    localStorage.setItem('isAdmin', response.user.isAdmin.toString());
   }
   return response.success;
 };
@@ -99,6 +113,12 @@ export const getRedirectPath = () => {
   const path = sessionStorage.getItem('redirectAfterLogin');
   console.log('Redirect Path:', path);
   sessionStorage.removeItem('redirectAfterLogin');
+  
+  // Redirect admin users to admin dashboard
+  if (localStorage.getItem('isAdmin') === 'true') {
+    return '/admin/dashboard';
+  }
+  
   return path || '/dash';
 };
 

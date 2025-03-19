@@ -16,7 +16,6 @@ interface PaymentData {
   totalAmount: number;
 }
 
-// Define Razorpay options interface
 interface RazorpayOptions {
   key: string;
   amount: number;
@@ -184,16 +183,51 @@ const Payment = () => {
     }
   };
 
-  const handlePaymentSuccess = (response: any) => {
-    // In a real app, you would verify the payment with your backend
-    // For now, we'll just simulate a successful payment
-    alert('Payment successful! Your tickets have been booked.');
-    
-    // Clear selected seats and payment data
-    sessionStorage.removeItem('paymentData');
-    
-    // Navigate to dashboard
-    navigate('/dash');
+  const handlePaymentSuccess = async (paymentResponse: any) => {
+    try {
+      if (!paymentData) return;
+
+      console.log('Payment data:', paymentData); // Debug log
+
+      // Update or create cinema with selected seats
+      const updateResponse = await fetch('http://localhost:5001/bookit/cinema/seats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: paymentData.theatreName,
+          address: paymentData.theatreLocation,
+          location: paymentData.theatreLocation,
+          selectedSeats: paymentData.selectedSeats.split(',').map(seat => seat.trim()),
+          showDate: paymentData.showDate,
+          showTime: paymentData.showTime,
+          paymentId: paymentResponse.razorpay_payment_id // Add payment reference
+        }),
+      });
+
+      if (!updateResponse.ok) {
+        const errorData = await updateResponse.json();
+        console.error('Server error:', errorData); // Debug log
+        throw new Error(`Failed to update cinema seats: ${errorData.message || 'Unknown error'}`);
+      }
+
+      const result = await updateResponse.json();
+      console.log('Cinema seats updated:', result); // Debug log
+
+      // Clear selected seats and payment data
+      sessionStorage.removeItem('paymentData');
+      
+      // Show success message
+      alert('Payment successful! Your tickets have been booked.');
+      
+      // Navigate to dashboard
+      navigate('/dash');
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      alert('Payment successful but there was an error updating seat information. Please contact support.');
+      navigate('/dash');
+    }
   };
 
   if (!paymentData) {

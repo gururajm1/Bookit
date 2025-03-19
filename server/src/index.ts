@@ -5,6 +5,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import authRoutes from './routes/authRoutes';
 import movieRoutes from './routes/movieRoutes';
+import cinemaRoutes from './routes/cinemaRoutes';
 
 dotenv.config();
 
@@ -15,9 +16,19 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan('dev'));
 
+// Debug middleware for all routes
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  if (req.method === 'POST') {
+    console.log('Request body:', req.body);
+  }
+  next();
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/bookit', movieRoutes);
+app.use('/bookit/cinema', cinemaRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
@@ -38,7 +49,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

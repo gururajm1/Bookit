@@ -1,6 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import MovieCard from './MovieCard';
-import Header from './Header';
 
 interface Movie {
   id: string;
@@ -58,7 +57,7 @@ const MovieList = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch('http://localhost:5000/bookit/movies'); // Updated URL to match server route
+        const response = await fetch('http://localhost:5001/bookit/movies'); // Updated URL to match server route
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

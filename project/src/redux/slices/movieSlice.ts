@@ -15,6 +15,7 @@ export interface Movie {
 
 interface CinemaShowTime {
   time: string;
+  date: string;
   languages: string;
   isFull: boolean;
   isEmpty: boolean;
