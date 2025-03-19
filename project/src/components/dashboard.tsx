@@ -4,7 +4,6 @@ import { Users, UserCheck, Ticket, Calendar, Film, MapPin, Search, Download, Clo
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-// Interface based on Cinema model schema
 interface IShowTime {
   time: string;
   bookedSeats: string[];
@@ -28,7 +27,6 @@ interface ICinema {
   dates: ISeatAvailability[];
 }
 
-// Adapted for dashboard view
 interface TheaterSeatData {
   theaterId: string;
   theaterName: string;
@@ -47,7 +45,6 @@ interface TheaterShow {
   availableSeats: number;
 }
 
-// Dashboard component
 const Dashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -113,7 +110,6 @@ const Dashboard: React.FC = () => {
     return null;
   }
 
-  // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -122,7 +118,6 @@ const Dashboard: React.FC = () => {
     }).format(amount);
   };
 
-  // Format date
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
       year: 'numeric',
@@ -131,12 +126,10 @@ const Dashboard: React.FC = () => {
     });
   };
 
-  // Format time
   const formatTime = (timeString: string) => {
     return timeString;
   };
 
-  // Format seats for display
   const formatSeats = (seats: string[]) => {
     if (!seats || seats.length === 0) return 'None';
     

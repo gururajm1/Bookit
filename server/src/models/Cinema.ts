@@ -44,7 +44,6 @@ const CinemaSchema: Schema = new Schema({
   ],
 });
 
-// Add indexes for faster queries
 CinemaSchema.index({ name: 1 });
 CinemaSchema.index({ location: 1 });
 CinemaSchema.index({ 'dates.date': 1 });

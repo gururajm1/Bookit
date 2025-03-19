@@ -3,7 +3,6 @@ import { User } from '../models/User';
 
 const router = express.Router();
 
-// Get user's booked tickets
 router.get('/booked-tickets', async (req, res) => {
   try {
     const { email } = req.query;
@@ -36,7 +35,6 @@ router.get('/booked-tickets', async (req, res) => {
   }
 });
 
-// Add a new booking to user's profile
 router.post('/add-booking', async (req, res) => {
   try {
     const { email, booking } = req.body;
@@ -56,7 +54,6 @@ router.post('/add-booking', async (req, res) => {
       });
     }
 
-    // Add the new booking to the seatsBooked array
     user.seatsBooked = user.seatsBooked || [];
     user.seatsBooked.push({
       ...booking,

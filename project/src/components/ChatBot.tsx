@@ -41,7 +41,6 @@ const ChatBot: React.FC = () => {
   const [lastRecommendedMovies, setLastRecommendedMovies] = useState<Movie[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Initialize chat with welcome message
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([{
@@ -85,23 +84,19 @@ const ChatBot: React.FC = () => {
     const lowercaseQuery = query.toLowerCase();
     const entities: Record<string, string> = {};
 
-    // Extract genre preferences
     const genres = ['action', 'comedy', 'drama', 'horror', 'thriller', 'romance', 'sci-fi'];
     const foundGenre = genres.find(genre => lowercaseQuery.includes(genre));
     if (foundGenre) entities.genre = foundGenre;
 
-    // Extract language preferences
     const languages = ['english', 'hindi', 'tamil', 'telugu'];
     const foundLanguage = languages.find(lang => lowercaseQuery.includes(lang));
     if (foundLanguage) entities.language = foundLanguage;
 
-    // Extract timing preferences
     if (lowercaseQuery.includes('morning')) entities.timing = 'morning';
     if (lowercaseQuery.includes('afternoon')) entities.timing = 'afternoon';
     if (lowercaseQuery.includes('evening')) entities.timing = 'evening';
     if (lowercaseQuery.includes('night')) entities.timing = 'night';
 
-    // Determine intent
     if (lowercaseQuery.includes('book') || lowercaseQuery.includes('ticket')) {
       return { intent: 'booking', entities };
     }
@@ -128,7 +123,6 @@ const ChatBot: React.FC = () => {
     const { intent, entities } = analyzeUserIntent(query);
     let matchedMovies: Movie[] = [];
     
-    // Handle different intents
     switch (intent) {
       case 'booking':
         if (context.currentMovie) {
@@ -182,7 +176,6 @@ const ChatBot: React.FC = () => {
       );
     }
 
-    // If no specific criteria matched, return new releases
     if (filtered.length === movieList.length) {
       filtered = filtered.filter(movie => movie.isNewRelease);
     }
@@ -244,19 +237,16 @@ Just let me know what you'd prefer!
       const lowercaseInput = input.toLowerCase();
       let response: string;
 
-      // Handle follow-up questions about previously recommended movies
       if (lastRecommendedMovies.length > 0 && 
           (lowercaseInput.includes('first') || lowercaseInput.includes('1'))) {
         const selectedMovie = lastRecommendedMovies[0];
         setMovieContext(prev => ({ ...prev, currentMovie: selectedMovie }));
         response = generateDetailedMovieInfo(selectedMovie);
       }
-      // Handle booking intent
       else if (lowercaseInput.includes('book') && movieContext.currentMovie) {
         navigate(`/movie/${movieContext.currentMovie.id}/booking`);
         response = "Taking you to the booking page...";
       }
-      // Handle general queries
       else {
         response = generateMovieRecommendations(input, movieContext);
       }

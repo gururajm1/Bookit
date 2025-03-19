@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { User } from '../models/User'; // Import the User model
+import { User } from '../models/User';
 import mongoose from 'mongoose';
-import Cinema from '../models/Cinema'; // Import the Cinema model
+import Cinema from '../models/Cinema';
 
 interface BookingSummary {
   totalBookings: number;
@@ -15,10 +15,8 @@ interface BookingSummary {
 
 const dashboard = async (req: Request, res: Response) => {
   try {
-    // Fetch all users
     const users = await User.find();
     
-    // Initialize dashboard metrics
     const dashboardData = {
       totalUsers: users.length,
       activeUsers: users.filter(user => user.isActive).length,
@@ -41,7 +39,6 @@ const dashboard = async (req: Request, res: Response) => {
 };
 
 const calculateBookingSummary = (users: any[]): BookingSummary => {
-  // Initialize summary object
   const summary: BookingSummary = {
     totalBookings: 0,
     totalRevenue: 0,
@@ -52,22 +49,16 @@ const calculateBookingSummary = (users: any[]): BookingSummary => {
     recentBookings: []
   };
 
-  // Process all users' booking data
   users.forEach(user => {
     if (!user.seatsBooked || !Array.isArray(user.seatsBooked)) return;
     
-    // Update total bookings count
     summary.totalBookings += user.seatsBooked.length;
     
-    // Process each booking
     user.seatsBooked.forEach((booking: any) => {
-      // Add to total revenue
       summary.totalRevenue += booking.totalAmount || 0;
-      
-      // Add to total seats booked
+
       summary.totalSeatsBooked += booking.selectedSeats?.length || 0;
       
-      // Track popular movies
       const movieName = booking.movieName || 'Unknown';
       if (!summary.popularMovies[movieName]) {
         summary.popularMovies[movieName] = { count: 0, revenue: 0 };
@@ -75,7 +66,6 @@ const calculateBookingSummary = (users: any[]): BookingSummary => {
       summary.popularMovies[movieName].count += 1;
       summary.popularMovies[movieName].revenue += booking.totalAmount || 0;
       
-      // Track popular theatres
       const theatreName = booking.theatreName || 'Unknown';
       if (!summary.popularTheatres[theatreName]) {
         summary.popularTheatres[theatreName] = { count: 0, revenue: 0 };
@@ -83,7 +73,6 @@ const calculateBookingSummary = (users: any[]): BookingSummary => {
       summary.popularTheatres[theatreName].count += 1;
       summary.popularTheatres[theatreName].revenue += booking.totalAmount || 0;
       
-      // Track bookings by date (show date)
       const bookingDate = booking.showDate || 'Unknown';
       if (!summary.bookingsByDate[bookingDate]) {
         summary.bookingsByDate[bookingDate] = { count: 0, revenue: 0 };
@@ -91,7 +80,6 @@ const calculateBookingSummary = (users: any[]): BookingSummary => {
       summary.bookingsByDate[bookingDate].count += 1;
       summary.bookingsByDate[bookingDate].revenue += booking.totalAmount || 0;
       
-      // Add to recent bookings (with user info)
       summary.recentBookings.push({
         ...booking,
         userEmail: user.email,
@@ -103,14 +91,12 @@ const calculateBookingSummary = (users: any[]): BookingSummary => {
     });
   });
   
-  // Sort recent bookings by date (newest first) and limit to 10
   summary.recentBookings.sort((a, b) => {
     const dateA = a.bookingDate ? new Date(a.bookingDate).getTime() : 0;
     const dateB = b.bookingDate ? new Date(b.bookingDate).getTime() : 0;
     return dateB - dateA;
   }).slice(0, 10);
   
-  // Convert objects to arrays for easier consumption by frontend
   return {
     ...summary,
     popularMovies: Object.entries(summary.popularMovies)
@@ -125,7 +111,6 @@ const calculateBookingSummary = (users: any[]): BookingSummary => {
   } as any;
 };
 
-// New function to get theater seat data for admin dashboard
 const getTheaterSeats = async (req: Request, res: Response) => {
   try {
     const { date } = req.query;
@@ -137,10 +122,8 @@ const getTheaterSeats = async (req: Request, res: Response) => {
       });
     }
 
-    // Fetch all cinemas
     let cinemas = await Cinema.find();
     
-    // If no cinemas exist, create test data
     if (!cinemas || cinemas.length === 0) {
       console.log('No cinemas found in database, generating test data...');
       await generateTestCinemaData();
@@ -150,16 +133,13 @@ const getTheaterSeats = async (req: Request, res: Response) => {
     if (!cinemas || cinemas.length === 0) {
       return res.status(200).json({
         success: true,
-        data: [] // Return empty array if still no cinemas found
+        data: []
       });
     }
 
-    // Process cinemas to include only relevant date information
     const processedCinemas = cinemas.map(cinema => {
-      // Find the date entry that matches the requested date
       const dateEntry = cinema.dates.find((d: any) => d.date === date);
       
-      // If this cinema has no data for the requested date, return basic cinema info
       if (!dateEntry) {
         return {
           _id: cinema._id,
@@ -177,7 +157,6 @@ const getTheaterSeats = async (req: Request, res: Response) => {
         };
       }
       
-      // Return cinema with only the relevant date
       return {
         _id: cinema._id,
         name: cinema.name,
@@ -204,7 +183,6 @@ const getTheaterSeats = async (req: Request, res: Response) => {
   }
 };
 
-// Helper function to generate test cinema data
 const generateTestCinemaData = async () => {
   try {
     const testCinemas = [
@@ -308,7 +286,6 @@ const generateTestCinemaData = async () => {
       }
     ];
 
-    // Save test data to database
     for (const cinema of testCinemas) {
       await Cinema.create(cinema);
     }

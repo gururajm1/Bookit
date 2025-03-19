@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import { getUserEmail } from '../services/authService';
 
-// Define the PaymentData interface
 interface PaymentData {
   movieName: string;
   theatreName: string;
@@ -60,14 +60,12 @@ const Payment = () => {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
   useEffect(() => {
-    // Load Razorpay script
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.async = true;
     script.onload = () => setIsScriptLoaded(true);
     document.body.appendChild(script);
 
-    // Get payment data from session storage
     const storedData = sessionStorage.getItem('paymentData');
     if (storedData) {
       setPaymentData(JSON.parse(storedData));
@@ -111,7 +109,6 @@ const Payment = () => {
     setIsLoading(true);
     setError('');
 
-    // Validate inputs based on payment method
     if (paymentMethod === 'card') {
       if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv || !cardDetails.name) {
         setError('Please fill in all card details');
@@ -119,7 +116,6 @@ const Payment = () => {
         return;
       }
       
-      // Basic validation
       if (cardDetails.number.replace(/\s/g, '').length !== 16) {
         setError('Please enter a valid 16-digit card number');
         setIsLoading(false);
@@ -139,8 +135,7 @@ const Payment = () => {
       }
     }
 
-    // In a real app, you would get this from your backend
-    const razorpayKeyId = 'rzp_test_YLwVXou1nEvjrS'; // Razorpay test key
+    const razorpayKeyId = 'rzp_test_YLwVXou1nEvjrS';
 
     if (!isScriptLoaded) {
       setError('Payment gateway is loading. Please try again.');
@@ -148,10 +143,9 @@ const Payment = () => {
       return;
     }
 
-    // Configure Razorpay
     const options: RazorpayOptions = {
       key: razorpayKeyId,
-      amount: paymentData.totalAmount * 100, // Razorpay expects amount in paise
+      amount: paymentData.totalAmount * 100,
       currency: 'INR',
       name: 'Bookit',
       description: `Tickets for ${paymentData.movieName}`,
@@ -168,7 +162,7 @@ const Payment = () => {
         address: paymentData.theatreLocation
       },
       theme: {
-        color: '#E11D48' // Red color matching the app theme
+        color: '#E11D48'
       }
     };
 
@@ -192,7 +186,6 @@ const Payment = () => {
 
       console.log('Payment data:', paymentData);
 
-      // Update cinema seats
       const updateResponse = await fetch('http://localhost:1004/bookit/cinema/seats', {
         method: 'POST',
         headers: {
@@ -219,10 +212,9 @@ const Payment = () => {
         throw new Error(`Failed to update cinema seats: ${errorData.message || 'Unknown error'}`);
       }
 
-      // Update user's booked tickets
-      const userEmail = localStorage.getItem('userEmail');
+      const userEmail = getUserEmail();
       if (!userEmail) {
-        throw new Error('User email not found');
+        throw new Error('User email not found. Please try logging in again.');
       }
 
       const userUpdateResponse = await fetch('http://localhost:1004/bookit/user/add-booking', {
@@ -252,22 +244,19 @@ const Payment = () => {
       if (!userUpdateResponse.ok) {
         const errorData = await userUpdateResponse.json();
         console.error('Failed to update user bookings:', errorData);
-        // Don't throw here, as the cinema seats are already updated
+        throw new Error(`Failed to update user bookings: ${errorData.message || 'Unknown error'}`);
       }
 
       const result = await updateResponse.json();
       console.log('Cinema seats updated:', result);
 
-      // Clear payment data from session storage
       sessionStorage.removeItem('paymentData');
-      
-      // Show success message and navigate to booked tickets page
+
       alert('Payment successful! Your tickets have been booked.');
       navigate('/booked-tickets', { replace: true });
     } catch (error) {
       console.error('Error processing payment:', error);
       alert('There was an error updating seat information. Please contact support.');
-      // Still navigate to dashboard but don't replace history in case user needs to try again
       navigate('/dash');
     }
   };
@@ -278,7 +267,6 @@ const Payment = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <button className="hover:text-red-500" onClick={() => navigate(-1)}>
@@ -294,13 +282,10 @@ const Payment = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Payment Form */}
         <div className="flex-1 bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-bold mb-6">Payment Details</h2>
 
-          {/* Payment Method Tabs */}
           <div className="flex mb-6 border-b">
             <button
               className={`py-2 px-4 font-medium ${
@@ -324,7 +309,6 @@ const Payment = () => {
             </button>
           </div>
 
-          {/* Card Payment Form */}
           {paymentMethod === 'card' && (
             <div className="space-y-4">
               <div>
@@ -395,7 +379,6 @@ const Payment = () => {
             </div>
           )}
 
-          {/* UPI Payment Form */}
           {paymentMethod === 'upi' && (
             <div className="space-y-4">
               <div>
@@ -416,14 +399,12 @@ const Payment = () => {
             </div>
           )}
 
-          {/* Error Message */}
           {error && (
             <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
               {error}
             </div>
           )}
 
-          {/* Payment Button */}
           <button
             className="mt-6 w-full py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
             onClick={handlePayment}
@@ -432,7 +413,6 @@ const Payment = () => {
             {isLoading ? 'Processing...' : `Pay ₹${paymentData.totalAmount}`}
           </button>
 
-          {/* Razorpay Info */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-500">
               Secured by <span className="font-medium">Razorpay</span>
@@ -457,7 +437,6 @@ const Payment = () => {
           </div>
         </div>
 
-        {/* Booking Summary */}
         <div className="w-full md:w-80 bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-bold mb-4">Booking Summary</h2>
           
@@ -497,7 +476,6 @@ const Payment = () => {
         </div>
       </div>
 
-      {/* Razorpay Integration Note */}
       <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
         <h3 className="font-bold text-yellow-800">Important Note for Razorpay Integration</h3>
         <p className="mt-2 text-sm text-yellow-700">

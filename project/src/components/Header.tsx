@@ -6,7 +6,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { isAuthenticated } from '../services/authService';
 
-// Sample movie data
 const MOVIES = [
   { name: 'Inception', language: 'English', genre: 'Sci-Fi' },
   { name: '3 Idiots', language: 'Hindi', genre: 'Comedy' },
@@ -31,10 +30,8 @@ const Header = () => {
   const [selectedCity, setSelectedCity] = useState(reduxLocation || 'Delhi-NCR');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
 
-  // Debounced search handler
   const debouncedSearch = useMemo(
     () => debounce((query: string) => {
-      // Dispatch custom event for MovieList component
       const searchEvent = new CustomEvent('movieSearch', {
         detail: { query }
       });
@@ -54,7 +51,6 @@ const Header = () => {
     setShowCityDropdown(false);
     dispatch(setSelectedLocation(city));
     
-    // Dispatch custom event for MovieList component
     const cityEvent = new CustomEvent('cityChange', {
       detail: { city }
     });
@@ -71,19 +67,15 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    // Clear all localStorage data
     localStorage.clear();
     
-    // Reset states
     setSearchQuery('');
     setSelectedCity('Delhi-NCR');
     setShowCityDropdown(false);
     
-    // Navigate to home page
     navigate('/');
   };
 
-  // Routes where header should be shown
   const showHeaderRoutes = ['/dash', '/movie', '/booked-tickets', '/showtimings', '/offers', '/investor', '/passport'];
   const shouldShowHeader = showHeaderRoutes.some(route => location.pathname.startsWith(route));
 

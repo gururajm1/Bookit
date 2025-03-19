@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { cinemaLocations, Cinema as CinemaType } from '../../data/locations';
 
-// Define types
 export interface Movie {
   id: string;
   title: string;
@@ -47,7 +46,6 @@ interface MovieState {
   error: string | null;
 }
 
-// Initial state
 const initialState: MovieState = {
   selectedMovie: null,
   selectedLocation: 'Delhi-NCR',
@@ -63,10 +61,8 @@ const initialState: MovieState = {
   error: null
 };
 
-// Cache validation time (15 minutes in milliseconds)
 const CACHE_REVALIDATION_TIME = 15 * 60 * 1004;
 
-// Async thunk for fetching movies with cache
 export const fetchMoviesWithCache = createAsyncThunk(
   'movies/fetchWithCache',
   async (_, { getState }) => {
@@ -74,31 +70,23 @@ export const fetchMoviesWithCache = createAsyncThunk(
     const { data, lastFetched } = state.movies.cachedMovies;
     const currentTime = Date.now();
     
-    // Check if cache is valid (less than 15 minutes old)
     if (data && (currentTime - lastFetched) < CACHE_REVALIDATION_TIME) {
       return data;
     }
     
-    // If cache is invalid or doesn't exist, fetch new data
-    // This would typically be an API call
-    // For now, we'll return an empty array as a placeholder
     return [];
   }
 );
 
-// Async thunk for fetching cinemas by location
 export const fetchCinemasByLocation = createAsyncThunk(
   'movies/fetchCinemasByLocation',
   async (location: string) => {
-    // Simulate API call with a delay
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Filter cinemas by location from our mock database
     return cinemaLocations.filter(cinema => cinema.location === location);
   }
 );
 
-// Create the slice
 const movieSlice = createSlice({
   name: 'movies',
   initialState,
@@ -171,7 +159,6 @@ const movieSlice = createSlice({
   }
 });
 
-// Export actions
 export const { 
   setSelectedMovie, 
   clearSelectedMovie, 
@@ -185,7 +172,6 @@ export const {
   invalidateCache
 } = movieSlice.actions;
 
-// Export selectors
 export const selectMovie = (state: { movies: MovieState }) => state.movies.selectedMovie;
 export const selectLocation = (state: { movies: MovieState }) => state.movies.selectedLocation;
 export const selectCinema = (state: { movies: MovieState }) => state.movies.selectedCinema;
@@ -196,5 +182,4 @@ export const selectCinemas = (state: { movies: MovieState }) => state.movies.cin
 export const selectLoading = (state: { movies: MovieState }) => state.movies.loading;
 export const selectError = (state: { movies: MovieState }) => state.movies.error;
 
-// Export reducer
 export default movieSlice.reducer;

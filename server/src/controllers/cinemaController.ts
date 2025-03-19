@@ -3,7 +3,7 @@ import Cinema, { ICinema } from '../models/Cinema';
 
 export const getBookedSeats = async (req: Request, res: Response) => {
   try {
-    console.log('Received request query:', req.query); // Debug log
+    console.log('Received request query:', req.query);
 
     const { theatreName, date, showTime, movieName } = req.query;
 
@@ -17,10 +17,10 @@ export const getBookedSeats = async (req: Request, res: Response) => {
     }
 
     const cinema = await Cinema.findOne({ name: theatreName });
-    console.log('Found existing cinema:', cinema); // Debug log
+    console.log('Found existing cinema:', cinema); 
     
     if (!cinema) {
-      console.log('Cinema not found:', theatreName); // Debug log
+      console.log('Cinema not found:', theatreName);
       return res.status(200).json({
         success: true,
         bookedSeats: []
@@ -28,9 +28,9 @@ export const getBookedSeats = async (req: Request, res: Response) => {
     }
 
     const dateEntry = cinema.dates.find(d => d.date === date);
-    console.log('Found date entry:', dateEntry); // Debug log
+    console.log('Found date entry:', dateEntry);
     if (!dateEntry) {
-      console.log('Date entry not found:', date); // Debug log
+      console.log('Date entry not found:', date);
       return res.status(200).json({
         success: true,
         bookedSeats: []
@@ -38,9 +38,9 @@ export const getBookedSeats = async (req: Request, res: Response) => {
     }
 
     const showTimeEntry = dateEntry.showTimes?.find(st => st.time === showTime && st.movieName === movieName);
-    console.log('Found showTime entry:', showTimeEntry); // Debug log
+    console.log('Found showTime entry:', showTimeEntry);
 
-    console.log('Returning booked seats:', showTimeEntry?.bookedSeats || []); // Debug log
+    console.log('Returning booked seats:', showTimeEntry?.bookedSeats || []);
     return res.status(200).json({
       success: true,
       bookedSeats: showTimeEntry?.bookedSeats || []
@@ -70,26 +70,21 @@ export const updateOrCreateCinemaSeats = async (req: Request, res: Response) => 
       });
     }
 
-    // Try to find existing cinema by name
     let cinema = await Cinema.findOne({ name });
     console.log('Found existing cinema:', cinema);
 
     if (cinema) {
-      // Cinema exists, check for date
       const dateIndex = cinema.dates.findIndex(d => d.date === showDate);
       console.log('Existing date index:', dateIndex);
 
       if (dateIndex !== -1) {
-        // Date exists, check for showTime
         const showTimeIndex = cinema.dates[dateIndex].showTimes?.findIndex(st => st.time === showTime && st.movieName === movieName) ?? -1;
         
         if (showTimeIndex !== -1) {
-          // ShowTime exists, update bookedSeats
           cinema.dates[dateIndex].showTimes![showTimeIndex].bookedSeats = [
             ...new Set([...cinema.dates[dateIndex].showTimes![showTimeIndex].bookedSeats, ...selectedSeats])
           ];
         } else {
-          // ShowTime doesn't exist, add new showTime
           if (!cinema.dates[dateIndex].showTimes) {
             cinema.dates[dateIndex].showTimes = [];
           }
@@ -100,7 +95,6 @@ export const updateOrCreateCinemaSeats = async (req: Request, res: Response) => 
           });
         }
       } else {
-        // Date doesn't exist, add new date with showTime
         cinema.dates.push({
           date: showDate,
           seats: [],
@@ -115,7 +109,6 @@ export const updateOrCreateCinemaSeats = async (req: Request, res: Response) => 
       await cinema.save();
       console.log('Updated cinema:', cinema);
     } else {
-      // Create new cinema with seats
       cinema = await Cinema.create({
         name,
         address,
@@ -152,12 +145,12 @@ export const updateOrCreateCinemaSeats = async (req: Request, res: Response) => 
 
 export const verifyCinemaName = async (req: Request, res: Response) => {
   try {
-    console.log('Received request params:', req.params); // Debug log
+    console.log('Received request params:', req.params);
 
     const { name } = req.params;
     const cinema = await Cinema.findOne({ name });
 
-    console.log('Found cinema:', cinema); // Debug log
+    console.log('Found cinema:', cinema);
 
     res.status(200).json({
       success: true,

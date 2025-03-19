@@ -10,7 +10,6 @@ const ProtectedRoute = ({ redirectPath = '/login', children }: ProtectedRoutePro
   const isAuthenticated = authService.isAuthenticated();
   
   if (!isAuthenticated) {
-    // Save the current path for redirect after login
     sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
     return <Navigate to={redirectPath} replace />;
   }

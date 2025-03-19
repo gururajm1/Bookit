@@ -30,7 +30,6 @@ const MovieCard = memo<MovieCardProps>(({
   const dispatch = useDispatch();
 
   const handleBook = () => {
-    // Dispatch movie data to Redux store
     dispatch(setSelectedMovie({
       id,
       title,
@@ -42,7 +41,6 @@ const MovieCard = memo<MovieCardProps>(({
       releaseDate
     }));
     
-    // Navigate to booking page
     navigate(`/movie/${id}/booking`);
   };
 

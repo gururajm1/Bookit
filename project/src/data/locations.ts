@@ -1,4 +1,3 @@
-// Mock cinema locations database
 export interface CinemaShowTime {
   time: string;
   languages: string;

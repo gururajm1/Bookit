@@ -34,6 +34,7 @@ class AuthService {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       localStorage.setItem('isAdmin', response.data.user.isAdmin.toString());
+      localStorage.setItem('userEmail', response.data.user.email);
     }
     return response.data;
   }
@@ -50,6 +51,7 @@ class AuthService {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       localStorage.setItem('isAdmin', response.data.user.isAdmin.toString());
+      localStorage.setItem('userEmail', response.data.user.email);
     }
     return response.data;
   }
@@ -58,12 +60,17 @@ class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('isAdmin');
+    localStorage.removeItem('userEmail');
   }
 
   getCurrentUser() {
     const userStr = localStorage.getItem('user');
     if (userStr) return JSON.parse(userStr);
     return null;
+  }
+
+  getUserEmail(): string | null {
+    return localStorage.getItem('userEmail');
   }
 
   getToken(): string | null {
@@ -82,7 +89,6 @@ class AuthService {
 
 const authService = new AuthService();
 
-// Auth service functions
 export const isAuthenticated = () => {
   const token = localStorage.getItem('token');
   console.log('Token:', token);
@@ -95,12 +101,12 @@ export const isAdmin = () => {
 };
 
 export const login = async (credentials: { email: string; password: string }) => {
-  // Implement login logic here
   const response = await authService.login(credentials);
   if (response.token) {
     localStorage.setItem('token', response.token);
     localStorage.setItem('user', JSON.stringify(response.user));
     localStorage.setItem('isAdmin', response.user.isAdmin.toString());
+    localStorage.setItem('userEmail', response.user.email);
   }
   return response.success;
 };
@@ -114,12 +120,27 @@ export const getRedirectPath = () => {
   console.log('Redirect Path:', path);
   sessionStorage.removeItem('redirectAfterLogin');
   
-  // Redirect admin users to admin dashboard
   if (localStorage.getItem('isAdmin') === 'true') {
     return '/admin/dashboard';
   }
   
   return path || '/dash';
+};
+
+export const getUserEmail = () => {
+  const userEmail = localStorage.getItem('userEmail');
+  if (userEmail) return userEmail;
+  
+  const userStr = localStorage.getItem('user');
+  if (userStr) {
+    const user = JSON.parse(userStr);
+    if (user && user.email) {
+      localStorage.setItem('userEmail', user.email);
+      return user.email;
+    }
+  }
+  
+  return null;
 };
 
 export default authService;

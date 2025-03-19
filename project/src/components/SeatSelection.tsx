@@ -39,7 +39,6 @@ const SeatSelection = () => {
   ];
 
   useEffect(() => {
-    // Clear selected seats when component unmounts
     return () => {
       dispatch(clearSelectedSeats());
     };
@@ -62,7 +61,6 @@ const SeatSelection = () => {
         if (data.success) {
           const bookedSeatsData = data.bookedSeats || [];
           setBookedSeats(bookedSeatsData);
-          // Clear any selected seats that are now booked
           const selectedButBooked = selectedSeats.filter(seatId => bookedSeatsData.includes(seatId));
           if (selectedButBooked.length > 0) {
             selectedButBooked.forEach(seatId => {
@@ -163,7 +161,6 @@ const SeatSelection = () => {
       return;
     }
     
-    // Ensure all required data is available in Redux store
     if (!selectedMovie.title || !selectedCinema.name || !selectedCinema.location || 
         !selectedShowTime.time || !selectedShowTime.date) {
       console.error('Invalid data in Redux store');
@@ -185,9 +182,7 @@ const SeatSelection = () => {
     };
 
     try {
-      // Store payment data in sessionStorage
       sessionStorage.setItem('paymentData', JSON.stringify(paymentData));
-      // Navigate to payment page
       navigate('/payment');
     } catch (error) {
       console.error('Navigation error:', error);

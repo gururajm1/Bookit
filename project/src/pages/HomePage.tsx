@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, MapPin, ChevronDown, Star, Clock, Calendar, ArrowRight } from 'lucide-react';
 
-// Featured movies data (this would typically come from an API)
 const FEATURED_MOVIES = [
   {
     id: 'm1',
@@ -42,7 +41,6 @@ const FEATURED_MOVIES = [
   },
 ];
 
-// Upcoming movies
 const UPCOMING_MOVIES = [
   {
     id: 'um1',
@@ -73,14 +71,12 @@ const UPCOMING_MOVIES = [
   },
 ];
 
-// Cities for location dropdown
 const INDIAN_CITIES = [
   'Delhi-NCR', 'Mumbai', 'Chennai', 'Bangalore', 'Kolkata', 
   'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow',
   'Chandigarh', 'Kochi', 'Indore', 'Bhopal', 'Nagpur'
 ];
 
-// Testimonials
 const TESTIMONIALS = [
   {
     id: 1,
@@ -102,7 +98,6 @@ const TESTIMONIALS = [
   },
 ];
 
-// MovieCard Component
 const MovieCard: React.FC<{
   id: string;
   title: string;
@@ -196,7 +191,6 @@ const MovieCard: React.FC<{
   );
 };
 
-// Testimonial Card Component
 const TestimonialCard: React.FC<{
   name: string;
   comment: string;
@@ -226,7 +220,6 @@ const TestimonialCard: React.FC<{
   );
 };
 
-// Features component
 const FeatureCard: React.FC<{
   icon: React.ReactNode;
   title: string;
@@ -243,7 +236,6 @@ const FeatureCard: React.FC<{
   );
 };
 
-// Main HomePage Component
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -263,7 +255,6 @@ const HomePage: React.FC = () => {
     navigate('/signup');
   };
 
-  // Handle click outside city dropdown to close it
   useEffect(() => {
     const handleClickOutside = () => {
       setShowCityDropdown(false);
@@ -277,7 +268,6 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -321,7 +311,6 @@ const HomePage: React.FC = () => {
       </header>
 
       <main>
-        {/* Hero section */}
         <section className="bg-gradient-to-br from-red-600 to-red-700 text-white py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto text-center">
@@ -345,7 +334,6 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* Features section */}
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">Why Choose Bookit?</h2>
@@ -369,7 +357,6 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* Now Showing */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-8">
@@ -396,7 +383,6 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* Coming Soon */}
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-8">
@@ -423,7 +409,6 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* Testimonials */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">What Our Users Say</h2>
@@ -440,7 +425,6 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
-        {/* CTA Section */}
         <section className="py-16 bg-gradient-to-br from-red-600 to-red-700 text-white">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-6">Ready for Your Next Movie Adventure?</h2>
@@ -455,7 +439,6 @@ const HomePage: React.FC = () => {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

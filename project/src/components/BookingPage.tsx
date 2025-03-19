@@ -37,17 +37,14 @@ const BookingPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [seatCounts, setSeatCounts] = useState<Record<string, number>>({});
   
-  // Generate dates for the next 7 days
   const dates = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i));
 
-  // Function to get seat availability color
   const getAvailabilityColor = (count: number) => {
     if (count >= 210) return 'text-red-500 border-red-500';
     if (count >= 100) return 'text-yellow-500 border-yellow-500';
     return 'text-green-500 border-green-500';
   };
 
-  // Function to fetch seat counts for a cinema and showtime
   const fetchSeatCount = async (cinema: Cinema, showTime: ShowTime) => {
     try {
       const formattedDate = format(selectedDate, 'dd-MM-yyyy');
@@ -74,7 +71,6 @@ const BookingPage: React.FC = () => {
     }
   }, [selectedLocation, dispatch]);
 
-  // Fetch seat counts whenever cinemas, date, or movie changes
   useEffect(() => {
     if (cinemas && selectedMovie) {
       cinemas.forEach((cinema: Cinema) => {
@@ -85,7 +81,6 @@ const BookingPage: React.FC = () => {
     }
   }, [cinemas, selectedDate, selectedMovie]);
   
-  // Filter cinemas based on search query and time filter
   const filteredCinemas = cinemas.filter((cinema: Cinema) => {
     const matchesSearch = cinema.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          cinema.address.toLowerCase().includes(searchQuery.toLowerCase());
@@ -102,13 +97,11 @@ const BookingPage: React.FC = () => {
     console.log('Is authenticated:', isAuthenticated());
     
     if (!isAuthenticated()) {
-      // Save the current state before redirecting
       sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
       navigate('/login');
       return;
     }
-    
-    // Clear any previously selected seats
+  
     dispatch(clearSelectedSeats());
     
     dispatch(setSelectedCinema(cinema));
@@ -117,11 +110,11 @@ const BookingPage: React.FC = () => {
       date: format(selectedDate, 'dd-MM-yyyy')
     }));
     
-    // Navigate to the correct route with the movie ID
+  
     navigate(`/movie/${selectedMovie?.id}/seats`);
   };
 
-  // Render show time button with appropriate color
+  
   const renderShowTimeButton = (cinema: Cinema, showTime: ShowTime) => {
     const key = `${cinema.name}-${showTime.time}`;
     const seatCount = seatCounts[key] || 0;
@@ -144,7 +137,6 @@ const BookingPage: React.FC = () => {
   
   return (
     <div className="min-h-screen bg-white">
-      {/* Movie Header */}
       <div className="bg-gradient-to-b from-gray-100 to-white">
         <div className="container mx-auto px-4 py-6 pt-20">
           <div className="flex items-center text-gray-800 gap-4">
@@ -165,7 +157,6 @@ const BookingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Location Display */}
       <div className="bg-gray-100 border-y border-gray-200">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
@@ -183,7 +174,6 @@ const BookingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Date Selection */}
       <div className="border-t border-b border-gray-200 bg-white">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-4 py-4 overflow-x-auto">
@@ -206,7 +196,6 @@ const BookingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Filters and Search */}
       <div className="bg-white py-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col gap-4">
@@ -239,7 +228,6 @@ const BookingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Cinema List */}
       <div className="container mx-auto px-4 py-6">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">

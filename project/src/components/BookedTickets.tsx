@@ -11,7 +11,7 @@ interface BookedTicket {
   language: string;
   theatreName: string;
   theatreLocation: string;
-  showDate: string;  // Format: "DD-MM-YYYY"
+  showDate: string; 
   showTime: string;
   totalAmount: number;
   selectedSeats: string[];
@@ -49,7 +49,6 @@ const BookedTickets: FC = () => {
 
         const data = await response.json();
         if (data.success) {
-          // Sort tickets by booking date in descending order (newest first)
           const sortedTickets = data.tickets.sort((a: BookedTicket, b: BookedTicket) => {
             const dateA = new Date(a.bookingDate).getTime();
             const dateB = new Date(b.bookingDate).getTime();
@@ -72,12 +71,11 @@ const BookedTickets: FC = () => {
 
   const formatShowDate = (dateStr: string) => {
     try {
-      // Parse the date string from "DD-MM-YYYY" format
       const parsedDate = parse(dateStr, 'dd-MM-yyyy', new Date());
       return format(parsedDate, 'MMM d, yyyy');
     } catch (error) {
       console.error('Error parsing date:', error);
-      return dateStr; // Return original string if parsing fails
+      return dateStr;
     }
   };
 

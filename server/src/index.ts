@@ -14,17 +14,14 @@ dotenv.config();
 
 const app = express();
 
-// Initialize OpenAI
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Middleware
 app.use(express.json());
 app.use(cors());
 app.use(morgan('dev'));
 
-// Debug middleware for all routes
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   if (req.method === 'POST') {
@@ -33,19 +30,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/bookit', movieRoutes);
 app.use('/bookit/cinema', cinemaRoutes);
 app.use('/bookit/user', userRoutes);
 app.use('/bookit/admin', adminRoutes);
 
-// Health check route
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-//chat bot api endpoint
 app.post('/api/chat', async (req, res) => {
   try {
     const { messages } = req.body;
@@ -54,10 +48,8 @@ app.post('/api/chat', async (req, res) => {
       return res.status(400).json({ error: 'Invalid request format' });
     }
     
-    // Get the last user message
     const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content.toLowerCase() || '';
     
-    // Check if it's a movie-related query
     const isMovieQuery = 
       lastUserMessage.includes('movie') || 
       lastUserMessage.includes('film') || 
@@ -66,11 +58,8 @@ app.post('/api/chat', async (req, res) => {
       lastUserMessage.includes('recommend') ||
       lastUserMessage.includes('suggest');
     
-    // If it's a movie query, we'll let the frontend handle it
-    // since it already has the movie data and can provide better recommendations
     if (isMovieQuery) {
       try {
-        // Try to use OpenAI API for more natural responses
         const response = await openai.chat.completions.create({
           model: 'gpt-3.5-turbo',
           messages: [
@@ -89,7 +78,6 @@ app.post('/api/chat', async (req, res) => {
       } catch (openaiError) {
         console.error('Error calling OpenAI API:', openaiError);
         
-        // Fallback for movie queries
         let responseContent = "I can help you find movies you might enjoy. What genres or languages are you interested in?";
         
         res.json({
@@ -99,9 +87,7 @@ app.post('/api/chat', async (req, res) => {
       return;
     }
     
-    // For non-movie queries, proceed with regular processing
     try {
-      // Try to use OpenAI API
       const response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: [
@@ -120,10 +106,8 @@ app.post('/api/chat', async (req, res) => {
     } catch (openaiError) {
       console.error('Error calling OpenAI API:', openaiError);
       
-      // Fallback to predefined responses
       let responseContent = 'I apologize, but I am currently experiencing technical difficulties. Please try again later.';
       
-      // Simple pattern matching for common queries
       if (lastUserMessage.includes('hello') || lastUserMessage.includes('hi') || lastUserMessage.includes('hey')) {
         responseContent = 'Hello! How can I help you with your movie booking today?';
       } else if (lastUserMessage.includes('book') || lastUserMessage.includes('ticket') || lastUserMessage.includes('seat')) {
@@ -156,12 +140,10 @@ app.post('/api/chat', async (req, res) => {
 
 
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI!)
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
   res.status(500).json({

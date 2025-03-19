@@ -43,7 +43,7 @@ const movieSchema = new Schema({
   }
 }, {
   timestamps: true,
-  collection: 'movies' // Explicitly set the collection name to match your database
+  collection: 'movies'
 });
 
 export const Movie = mongoose.model<IMovie>('Movie', movieSchema);

@@ -2,13 +2,10 @@ import { db } from './db';
 
 export const initializeMovies = async () => {
   try {
-    // Check if movies already exist in the database
     const existingMovies = await db.movies.count();
     
     if (existingMovies === 0) {
-      // Only insert if no movies exist
       const movies = [
-        // Hindi Movies
         {
           id: "dunki",
           title: "Dunki",
@@ -27,7 +24,6 @@ export const initializeMovies = async () => {
           genres: ["Action", "Crime", "Drama"],
           "isNewRelease": true
         },
-        // ... Add all other movies from the original list
       ];
 
       await db.movies.bulkAdd(movies);

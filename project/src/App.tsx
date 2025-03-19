@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Provider } from 'react-redux';
 import { store } from './redux/store';
 
-// Components
 import Header from './components/Header';
 import MovieList from './components/MovieList';
 import BookingPage from './components/BookingPage';
@@ -16,21 +15,6 @@ import Dashboard from './components/dashboard';
 import HomePage from './pages/HomePage';
 import { isAuthenticated } from './services/authService';
 
-/* Admin Protected Route Component - Uncomment when implementing admin features
-const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuth = isAuthenticated();
-  const admin = isAdmin();
-  
-  if (!isAuth || !admin) {
-    sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
-    return <Navigate to="/login" />;
-  }
-  return <>{children}</>;
-};
-*/
-
-// This route is for unauthenticated users only
-// If user is authenticated, redirect to the dashboard
 const PublicOnlyRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuth = isAuthenticated();
   
@@ -48,7 +32,6 @@ function App() {
           <Header />
           <main className="relative">
             <Routes>
-              {/* Public Routes - accessible by both authenticated and unauthenticated users */}
               <Route path="/" element={
                 <PublicOnlyRoute>
                   <HomePage />
@@ -65,7 +48,6 @@ function App() {
                 </PublicOnlyRoute>
               } />
               
-              {/* Protected Routes - only accessible if authenticated */}
               <Route path="/dash" element={
                 <ProtectedRoute>
                   <MovieList />
@@ -96,15 +78,6 @@ function App() {
                   <Dashboard />
                 </ProtectedRoute>
               } />
-              
-              {/* Admin Routes - Commented out until admin components are implemented */}
-              {/* <Route path="/admin/*" element={
-                <AdminProtectedRoute>
-                  <AdminDashboard />
-                </AdminProtectedRoute>
-              } /> */}
-              
-              {/* Catch-all route - redirect unauthenticated users to HomePage, authenticated to Dashboard */}
               <Route path="*" element={
                 isAuthenticated() ? 
                 <Navigate to="/dash" replace /> : 

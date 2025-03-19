@@ -4,10 +4,8 @@ import ChatBot from './ChatBot';
 import debounce from 'lodash/debounce';
 import { Search } from 'lucide-react';
 
-// Simple image cache for preloading
 const imageCache = new Map<string, HTMLImageElement>();
 
-// Simple image preloading function
 const preloadImages = async (srcs: string[]): Promise<void> => {
   const promises = srcs.map(src => {
     return new Promise<void>((resolve) => {
@@ -23,7 +21,7 @@ const preloadImages = async (srcs: string[]): Promise<void> => {
       };
       img.onerror = () => {
         console.error(`Failed to load image: ${src}`);
-        resolve(); // Resolve anyway to not block other images
+        resolve();
       };
       img.src = src;
     });
@@ -44,8 +42,8 @@ interface Movie {
 }
 
 const MOVIES_PER_ROW = 5;
-const ITEMS_PER_PAGE = 20; // Increased items per page for smoother scrolling
-const SCROLL_THRESHOLD = 800; // Increased threshold for earlier loading
+const ITEMS_PER_PAGE = 20; 
+const SCROLL_THRESHOLD = 800; 
 
 const MovieList = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,7 +58,6 @@ const MovieList = () => {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
 
-  // Memoized search cache with Map for better performance
   const searchCache = useMemo(() => {
     const cache = new Map<string, Movie[]>();
     return {
@@ -70,7 +67,6 @@ const MovieList = () => {
     };
   }, []);
 
-  // Initial fetch of all movies
   useEffect(() => {
     const fetchAllMovies = async () => {
       try {
@@ -81,11 +77,9 @@ const MovieList = () => {
         const data = await response.json();
         setAllMovies(data);
         
-        // Set initial movies with more items for smoother initial render
         const initialMovies = data.slice(0, ITEMS_PER_PAGE);
         setMovies(initialMovies);
-        
-        // Preload next batch of images
+      
         const nextBatchImages = data
           .slice(ITEMS_PER_PAGE, ITEMS_PER_PAGE * 2)
           .map((movie: Movie) => movie.image);
@@ -103,7 +97,6 @@ const MovieList = () => {
     fetchAllMovies();
   }, []);
 
-  // Optimized load more function with debouncing
   const loadMore = useCallback(
     debounce(async () => {
       if (isLoading || !hasMore || !initialLoadComplete) return;
@@ -117,7 +110,6 @@ const MovieList = () => {
         const newMovies = allMovies.slice(startIndex, endIndex);
         
         if (newMovies.length > 0) {
-          // Preload images for next batch
           const imageUrls = newMovies.map(movie => movie.image);
           await preloadImages(imageUrls);
           
@@ -125,7 +117,6 @@ const MovieList = () => {
           setPage(nextPage);
           setHasMore(endIndex < allMovies.length);
           
-          // Preload next batch images
           const nextBatchImages = allMovies
             .slice(endIndex, endIndex + ITEMS_PER_PAGE)
             .map(movie => movie.image);
@@ -138,11 +129,10 @@ const MovieList = () => {
       } finally {
         setIsLoading(false);
       }
-    }, 150), // Debounce time for smoother loading
+    }, 150), 
     [page, isLoading, hasMore, allMovies, initialLoadComplete]
   );
 
-  // Optimized scroll handler
   const handleScroll = useCallback(
     debounce(() => {
       if (!containerRef.current || isLoading || !hasMore) return;
@@ -153,11 +143,10 @@ const MovieList = () => {
       if (scrollBottom < SCROLL_THRESHOLD) {
         loadMore();
       }
-    }, 50), // Small debounce for scroll events
+    }, 50),
     [loadMore, isLoading, hasMore]
   );
 
-  // Scroll event listener
   useEffect(() => {
     const container = containerRef.current;
     if (container) {
@@ -166,7 +155,6 @@ const MovieList = () => {
     }
   }, [handleScroll]);
 
-  // Filtered movies with memoization
   const filteredMovies = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     const cacheKey = `${query}:${selectedCity}`;
@@ -184,7 +172,6 @@ const MovieList = () => {
         return matchesSearch;
       });
       
-      // Sort results by relevance
       if (query) {
         results.sort((a, b) => {
           const aTitle = a.title.toLowerCase();
@@ -192,21 +179,17 @@ const MovieList = () => {
           const aGenres = a.genres.toLowerCase();
           const bGenres = b.genres.toLowerCase();
           
-          // Exact title matches first
           if (aTitle === query && bTitle !== query) return -1;
           if (bTitle === query && aTitle !== query) return 1;
           
-          // Title starts with query next
           if (aTitle.startsWith(query) && !bTitle.startsWith(query)) return -1;
           if (bTitle.startsWith(query) && !aTitle.startsWith(query)) return 1;
           
-          // Genre matches next
           const aGenreMatch = aGenres.split(',').some(g => g.trim().toLowerCase() === query);
           const bGenreMatch = bGenres.split(',').some(g => g.trim().toLowerCase() === query);
           if (aGenreMatch && !bGenreMatch) return -1;
           if (bGenreMatch && !aGenreMatch) return 1;
           
-          // Default to alphabetical
           return aTitle.localeCompare(bTitle);
         });
       }
@@ -217,11 +200,9 @@ const MovieList = () => {
     return results || [];
   }, [movies, searchQuery, selectedCity, searchCache]);
 
-  // Event listeners for search and city change
   useEffect(() => {
     const handleSearch = (event: CustomEvent<{ query: string }>) => {
       setSearchQuery(event.detail.query);
-      // Clear the cache when search query changes
       searchCache.clear();
     };
 
@@ -239,7 +220,6 @@ const MovieList = () => {
     };
   }, [searchCache]);
 
-  // Update the styles useEffect
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
